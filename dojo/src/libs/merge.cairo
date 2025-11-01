@@ -416,7 +416,6 @@ mod tests {
             B01, B06, B11, 0, ref seeder);
     }
 
-
     #[test]
     fn test_merge_row_merge() {
         let mut seeder: Seeder = Seeder {
@@ -450,6 +449,7 @@ mod tests {
             T1, T2, T3, 0, ref seeder);
         //
         // merged 1st...
+        seeder.current = 0x05fa5438c7ccbcbae63ec200779acf8b7; // boost RNG
         _assert_row_merge( // [B:1]
             B06, B07, B11, 0,
             T1, T3, 0, 0, ref seeder);
@@ -483,6 +483,7 @@ mod tests {
             T3, T1, 0, 0, ref seeder);
         //
         // merged full
+        seeder.current = 0x05fa5438c7ccbcbae63ec200779acf8b7; // boost RNG
         _assert_row_merge( // [C:1]
             B06, B07, B06, 0,
             T1, T2, 0, 0, ref seeder);
@@ -523,6 +524,7 @@ mod tests {
             T1, T1, 0, 0, ref seeder);
         //
         // merge 1 + shift 2
+        seeder.current = 0x05fa5438c7ccbcbae63ec200779acf8b7; // boost RNG
         _assert_row_merge(
             B06, B07, B11, B16,
             T1, T3, T4, 0, ref seeder);
