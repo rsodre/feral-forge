@@ -28,8 +28,11 @@ pub impl BeastImpl of BeastTrait {
     #[inline(always)]
     fn randomize_beast_of_tier(tier: u8, ref seeder: Seeder) -> u8 {
         let r: u8 = seeder.get_next_u8(15);
-// println!("___randomize_beast_of_tier:{} r:{}", tier, r);
-        ((r % 5) + 1 + ((r / 5) * 25) + ((tier - 1) * 5))
+        let bhm = ((r / 5) * 25);   // type
+        let t = ((tier - 1) * 5);   // tier offset
+        let i = ((r % 5) + 1);      // index
+        let b: u8 = (bhm + t + i);
+        (b)
     }
 
     //---------------------------------------
