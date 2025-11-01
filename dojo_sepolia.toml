@@ -1,0 +1,65 @@
+#--------------------------
+# dojo profile config
+# https://book.dojoengine.org/framework/config
+# https://github.com/dojoengine/dojo/blob/main/examples/simple/dojo_dev.toml
+#
+
+[world]
+name = "Feral Forge"
+description = "The place where feral beasts get forged for battle!."
+icon_uri = "https://feral.underware.gg/images/logo.png"
+cover_uri = "https://feral.underware.gg/images/splash.jpg"
+website = "https://feral.underware.gg"
+seed = "pistols_v1_0_0"
+
+[world.socials]
+x = "https://x.com/underware_gg"
+github = "https://github.com/underware-gg/pistols"
+# discord = "https://discord.gg/FB2wR6uF"
+# telegram = "https://t.me/dojoengine"
+
+[env]
+chain_id = "SN_SEPOLIA"
+rpc_url = "https://api.cartridge.gg/x/starknet/sepolia/rpc/v0_9" # or env: STARKNET_RPC_URL
+# account_address = ""  # env: DOJO_ACCOUNT_ADDRESS
+# private_key = ""      # env: DOJO_PRIVATE_KEY
+world_address = "0x8b4838140a3cbd36ebe64d4b5aaf56a30cc3753c928a79338bf56c53f506c5"
+lords_address = "0x044e6bcc627e6201ce09f781d1aae44ea4c21c2fdef299e34fce55bef2d02210"
+world_block = 23920     # LORDS deployment block
+
+#--------------------------
+# namespaces
+#
+[namespace]
+default = "feral"
+
+#--------------------------
+# namespaces
+#
+[owners]
+"pistols" = [
+  "feral-game",
+]
+
+#--------------------------
+# writers
+#
+[writers]
+"pistols" = [
+  "feral-game",
+]
+
+#--------------------------
+# init_calldata
+#
+[init_call_args]
+"feral-game" = [
+]
+
+
+#--------------------------
+# migration
+#
+[migration]
+order_inits = []
+skip_contracts = []

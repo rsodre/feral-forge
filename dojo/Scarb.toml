@@ -1,25 +1,40 @@
-[package]
-cairo-version = "2.12.2"
-name = "dojo_starter"
-version = "1.7.0-alpha.4"
-edition = "2024_07"
+[package] 
+name = "feral"
+version.workspace = true
+edition.workspace = true
+cairo-version = ">=2.12.2"
+license = "CC0-1.0"
 
 [cairo]
 sierra-replace-ids = true
-
-[scripts]
-migrate = "sozo build && sozo migrate"                      # scarb run migrate
-spawn = "sozo execute dojo_starter-actions spawn --wait"    # scarb run spawn
-move = "sozo execute dojo_starter-actions move -c 1 --wait" # scarb run move
+panic-backtrace = true
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.4" }
-dojo_macros = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.4" }
-starknet = "2.12.2"
-
-[[target.starknet-contract]]
-build-external-contracts = ["dojo::world::world_contract::world"]
+starknet = ">=2.12.2"
+dojo = "1.7.1"
+# achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "a4de9f4c38814a19716b6c5f9cbd4213645e9cb1" }
+# graffiti = { git = "https://github.com/rsodre/graffiti", rev = "url" }
+# nft_combo = { git = "https://github.com/underware-gg/cairo-nft-combo", branch = "v1.0.0_scarb_2.12.2" }
+# openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
+# openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
 
 [dev-dependencies]
-cairo_test = "2.12.2"
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.4" }
+cairo_test = ">=2.12.2"
+dojo_cairo_test = "1.7.1"
+
+[tool.scarb]
+allow-prebuilt-plugins = ["dojo_cairo_macros"]
+
+[[target.starknet-contract]]
+sierra = true
+build-external-contracts = [
+  "dojo::world::world_contract::world",
+#   "achievement::events::index::e_TrophyCreation",
+#   "achievement::events::index::e_TrophyProgression",
+]
+
+# debug contract size issues
+# needed by `sozo build --stats.by-tag`
+# https://docs.starknet.io/resources/chain-info/
+# max felts = 81,920 felts
+# casm = true

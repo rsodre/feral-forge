@@ -1,4 +1,4 @@
-use dojo_starter::models::{Direction, Position};
+use feral::models::models::{Direction, Position};
 
 // define the interface
 #[starknet::interface]
@@ -9,10 +9,10 @@ pub trait IActions<T> {
 
 // dojo decorator
 #[dojo::contract]
-pub mod actions {
+pub mod game {
     use dojo::event::EventStorage;
     use dojo::model::ModelStorage;
-    use dojo_starter::models::{Moves, Vec2};
+    use feral::models::models::{Moves, Vec2};
     use starknet::{ContractAddress, get_caller_address};
     use super::{Direction, IActions, Position, next_position};
 
@@ -95,10 +95,8 @@ pub mod actions {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        /// Use the default namespace "dojo_starter". This function is handy since the ByteArray
-        /// can't be const.
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
-            self.world(@"dojo_starter")
+            self.world(@"feral")
         }
     }
 }

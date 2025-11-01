@@ -1,46 +1,46 @@
 #[cfg(test)]
 mod tests {
     use dojo::model::{ModelStorage, ModelStorageTest};
-    use dojo::world::WorldStorageTrait;
+    use dojo::world::{WorldStorage, WorldStorageTrait};
     use dojo_cairo_test::{
         ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
         spawn_test_world,
     };
-    use dojo_starter::models::{Direction, Moves, Position, m_Moves, m_Position};
-    use dojo_starter::systems::actions::{IActionsDispatcher, IActionsDispatcherTrait, actions};
+    use feral::models::models::{Direction, Moves, Position};
+    use feral::systems::game::{IActionsDispatcher, IActionsDispatcherTrait};
     use starknet::ContractAddress;
 
     fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {
-            namespace: "dojo_starter",
+            namespace: "feral",
             resources: [
-                TestResource::Model(m_Position::TEST_CLASS_HASH.into()),
-                TestResource::Model(m_Moves::TEST_CLASS_HASH.into()),
-                TestResource::Event(actions::e_Moved::TEST_CLASS_HASH.into()),
-                TestResource::Contract(actions::TEST_CLASS_HASH.into()),
-            ]
-                .span(),
+                TestResource::Model(feral::models::models::m_Position::TEST_CLASS_HASH.into()),
+                TestResource::Model(feral::models::models::m_Moves::TEST_CLASS_HASH.into()),
+                TestResource::Event(feral::systems::game::game::e_Moved::TEST_CLASS_HASH.into()),
+                TestResource::Contract(feral::systems::game::game::TEST_CLASS_HASH.into()),
+            ].span(),
         };
-
-        ndef
+        (ndef)
     }
 
     fn contract_defs() -> Span<ContractDef> {
         [
-            ContractDefTrait::new(@"dojo_starter", @"actions")
-                .with_writer_of([dojo::utils::bytearray_hash(@"dojo_starter")].span())
-        ]
-            .span()
+            ContractDefTrait::new(@"feral", @"game")
+                .with_writer_of([dojo::utils::bytearray_hash(@"feral")].span())
+        ].span()
     }
 
     #[test]
     fn test_world_test_set() {
         // Initialize test environment
         let caller: ContractAddress = 0.try_into().unwrap();
-        let ndef = namespace_def();
+        let ndef: NamespaceDef = namespace_def();
 
         // Register the resources.
-        let mut world = spawn_test_world([ndef].span());
+        let mut world: WorldStorage = spawn_test_world(
+            dojo::world::world::TEST_CLASS_HASH,
+            [ndef].span(),
+        );
 
         // Ensures permissions and initializations are synced.
         world.sync_perms_and_inits(contract_defs());
@@ -69,14 +69,17 @@ mod tests {
     fn test_move() {
         let caller: ContractAddress = 0.try_into().unwrap();
 
-        let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let ndef: NamespaceDef = namespace_def();
+        let mut world: WorldStorage = spawn_test_world(
+            dojo::world::world::TEST_CLASS_HASH,
+            [ndef].span(),
+        );
         world.sync_perms_and_inits(contract_defs());
 
-        let (contract_address, _) = world.dns(@"actions").unwrap();
-        let actions_system = IActionsDispatcher { contract_address };
+        let (contract_address, _) = world.dns(@"game").unwrap();
+        let game_system = IActionsDispatcher { contract_address };
 
-        actions_system.spawn();
+        game_system.spawn();
         let initial_moves: Moves = world.read_model(caller);
         let initial_position: Position = world.read_model(caller);
 
@@ -84,7 +87,7 @@ mod tests {
             initial_position.vec.x == 10 && initial_position.vec.y == 10, 'wrong initial position',
         );
 
-        actions_system.move(Direction::Right.into());
+        game_system.move(Direction::Right);
 
         let moves: Moves = world.read_model(caller);
         let right_dir_felt: felt252 = Direction::Right.into();
