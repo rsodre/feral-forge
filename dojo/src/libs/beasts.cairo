@@ -3,14 +3,45 @@
 // https://github.com/Provable-Games/summit/blob/3d1ebe8e07c31b74d8279b4b2090016b9fec39b2/client/src/utils/BeastData.ts
 //
 
+// pub enum Tier {
+//     #[default]
+//     None,   // 0
+//     T5,     // 1
+//     T4,     // 2
+//     T3,     // 3
+//     T2,     // 4
+//     T1,     // 5
+//     Shiny,  // 6
+// }
 
+// pub mod TYPE {
+//     pub const UNKNOWN: felt252 = '';
+//     pub const MAGIC: felt252 = 'Magic';
+//     pub const HUNTER: felt252 = 'Hunter';
+//     pub const BRUTE: felt252 = 'Brute';
+// }
 
+use feral::libs::rng::{Seeder, SeederTrait};
 
 #[generate_trait]
-impl BeastImpl of BeastTrait {
+pub impl BeastImpl of BeastTrait {
     #[inline(always)]
     fn exists(beast_id: u8) -> bool {
         (beast_id >= 1 && beast_id <= 75)
+    }
+    #[inline(always)]
+    fn is_shiny(beast_id: u8) -> bool {
+        (beast_id > 100) // assume it's a valid beast_id
+    }
+    #[inline(always)]
+    fn to_shiny(beast_id: u8) -> u8 {
+        (beast_id + 100) // assume it's a valid beast_id
+    }
+    #[inline(always)]
+    fn randomize_beast_of_tier(tier: u8, ref seeder: Seeder) -> u8 {
+        let r: u8 = seeder.get_next_u8(15);
+// println!("___randomize_beast_of_tier:{} r:{}", tier, r);
+        ((r % 5) + 1 + ((r / 5) * 25) + ((tier - 1) * 5))
     }
     fn to_tier(beast_id: u8) -> u8 {
         if (Self::exists(beast_id)) {
@@ -19,38 +50,32 @@ impl BeastImpl of BeastTrait {
             (0)
         }
     }
-    fn to_tier_match(beast_id: u8) -> u8 {
+    fn _to_tier_match(beast_id: u8) -> u8 {
         match beast_id {
-            0 => 0,
-            1 | 2 | 3 | 4 | 5 |  26 | 27 | 28 | 29 | 30 | 51 | 52 | 53 | 54 | 55 => 1,
-            6 | 7 | 8 | 9 | 10 | 31 | 32 | 33 | 34 | 35 | 56 | 57 | 58 | 59 | 60 => 2,
-            11 | 12 | 13 | 14 | 15 | 36 | 37 | 38 | 39 | 40 | 61 | 62 | 63 | 64 | 65 => 3,
-            16 | 17 | 18 | 19 | 20 | 41 | 42 | 43 | 44 | 45 | 66 | 67 | 68 | 69 | 70 => 4,
-            21 | 22 | 23 | 24 | 25 | 46 | 47 | 48 | 49 | 50 | 71 | 72 | 73 | 74 | 75 => 5,
-            _ => 0,
+            0 => (0),
+            1  | 2  | 3  | 4  | 5  | 26 | 27 | 28 | 29 | 30 | 51 | 52 | 53 | 54 | 55 => (1),
+            6  | 7  | 8  | 9 |  10 | 31 | 32 | 33 | 34 | 35 | 56 | 57 | 58 | 59 | 60 => (2),
+            11 | 12 | 13 | 14 | 15 | 36 | 37 | 38 | 39 | 40 | 61 | 62 | 63 | 64 | 65 => (3),
+            16 | 17 | 18 | 19 | 20 | 41 | 42 | 43 | 44 | 45 | 66 | 67 | 68 | 69 | 70 => (4),
+            21 | 22 | 23 | 24 | 25 | 46 | 47 | 48 | 49 | 50 | 71 | 72 | 73 | 74 | 75 => (5),
+            _ => (0),
         }
     }
-    fn to_type_match(beast_id: u8) -> felt252 {
-        match beast_id {
-            0 => '',
-            1 | 2 | 3 | 4 | 5 |
-            6 | 7 | 8 | 9 | 10 | 
-            11 | 12 | 13 | 14 | 15 | 
-            16 | 17 | 18 | 19 | 20 | 
-            21 | 22 | 23 | 24 | 25 => 'Magic',
-            26 | 27 | 28 | 29 | 30 |
-            31 | 32 | 33 | 34 | 35 |
-            36 | 37 | 38 | 39 | 40 |
-            41 | 42 | 43 | 44 | 45 |
-            46 | 47 | 48 | 49 | 50 => 'Hunter',
-            51 | 52 | 53 | 54 | 55 |
-            56 | 57 | 58 | 59 | 60 |
-            61 | 62 | 63 | 64 | 65 |
-            66 | 67 | 68 | 69 | 70 |
-            71 | 72 | 73 | 74 | 75 => 'Brute',
-            _ => '',
-        }
-    }
+    // fn to_type(beast_id: u8) -> felt252 {
+    //     if (beast_id >= 1 && beast_id <= 25) {TYPE::MAGIC}
+    //     else if (beast_id >= 26 && beast_id <= 50) {TYPE::HUNTER}
+    //     else if (beast_id >= 51 && beast_id <= 75) {TYPE::BRUTE}
+    //     else {TYPE::UNKNOWN}
+    // }
+    // fn _to_type_match(beast_id: u8) -> felt252 {
+    //     match beast_id {
+    //         0 => TYPE::UNKNOWN,
+    //         1 | 2 | 3 | 4 | 5 |6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 => TYPE::MAGIC,
+    //         26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50 => TYPE::HUNTER,
+    //         51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 | 71 | 72 | 73 | 74 | 75 => TYPE::BRUTE,
+    //         _ => TYPE::UNKNOWN,
+    //     }
+    // }
     fn to_name(beast_id: u8) -> felt252 {
         match beast_id {
             0 => '',
@@ -141,117 +166,32 @@ mod tests {
 
     #[test]
     fn test_beast_exists() {
-        assert!(!BeastTrait::exists(0));
-        // from 1 to 75...
-        assert!(BeastTrait::exists(1));
-        assert!(BeastTrait::exists(2));
-        assert!(BeastTrait::exists(3));
-        //...
-        assert!(BeastTrait::exists(73));
-        assert!(BeastTrait::exists(74));
-        assert!(BeastTrait::exists(75));
-        // invalid from here on...
-        assert!(!BeastTrait::exists(76));
-        assert!(!BeastTrait::exists(100));
-        assert!(!BeastTrait::exists(255));
+        for i in 0_u8..255_u8 {
+            assert_eq!(BeastTrait::exists(i), (i >= 1 && i <= 75));
+        }
     }
 
     #[test]
     fn test_beast_to_tier() {
-        assert_eq!(BeastTrait::to_tier(0), BeastTrait::to_tier_match(0));
-        // Tier 1
-        assert_eq!(BeastTrait::to_tier(1), BeastTrait::to_tier_match(1));
-        assert_eq!(BeastTrait::to_tier(2), BeastTrait::to_tier_match(2));
-        assert_eq!(BeastTrait::to_tier(3), BeastTrait::to_tier_match(3));
-        assert_eq!(BeastTrait::to_tier(4), BeastTrait::to_tier_match(4));
-        assert_eq!(BeastTrait::to_tier(5), BeastTrait::to_tier_match(5));
-        // Tier 2
-        assert_eq!(BeastTrait::to_tier(6), BeastTrait::to_tier_match(6));
-        assert_eq!(BeastTrait::to_tier(7), BeastTrait::to_tier_match(7));
-        assert_eq!(BeastTrait::to_tier(8), BeastTrait::to_tier_match(8));
-        assert_eq!(BeastTrait::to_tier(9), BeastTrait::to_tier_match(9));
-        assert_eq!(BeastTrait::to_tier(10), BeastTrait::to_tier_match(10));
-        // Tier 3
-        assert_eq!(BeastTrait::to_tier(11), BeastTrait::to_tier_match(11));
-        assert_eq!(BeastTrait::to_tier(12), BeastTrait::to_tier_match(12));
-        assert_eq!(BeastTrait::to_tier(13), BeastTrait::to_tier_match(13));
-        assert_eq!(BeastTrait::to_tier(14), BeastTrait::to_tier_match(14));
-        assert_eq!(BeastTrait::to_tier(15), BeastTrait::to_tier_match(15));
-        // Tier 4
-        assert_eq!(BeastTrait::to_tier(16), BeastTrait::to_tier_match(16));
-        assert_eq!(BeastTrait::to_tier(17), BeastTrait::to_tier_match(17));
-        assert_eq!(BeastTrait::to_tier(18), BeastTrait::to_tier_match(18));
-        assert_eq!(BeastTrait::to_tier(19), BeastTrait::to_tier_match(19));
-        assert_eq!(BeastTrait::to_tier(20), BeastTrait::to_tier_match(20));
-        // Tier 5
-        assert_eq!(BeastTrait::to_tier(21), BeastTrait::to_tier_match(21));
-        assert_eq!(BeastTrait::to_tier(22), BeastTrait::to_tier_match(22));
-        assert_eq!(BeastTrait::to_tier(23), BeastTrait::to_tier_match(23));
-        assert_eq!(BeastTrait::to_tier(24), BeastTrait::to_tier_match(24));
-        assert_eq!(BeastTrait::to_tier(25), BeastTrait::to_tier_match(25));
-        // Tier 1
-        assert_eq!(BeastTrait::to_tier(26), BeastTrait::to_tier_match(26));
-        assert_eq!(BeastTrait::to_tier(27), BeastTrait::to_tier_match(27));
-        assert_eq!(BeastTrait::to_tier(28), BeastTrait::to_tier_match(28));
-        assert_eq!(BeastTrait::to_tier(29), BeastTrait::to_tier_match(29));
-        assert_eq!(BeastTrait::to_tier(30), BeastTrait::to_tier_match(30));
-        // Tier 2
-        assert_eq!(BeastTrait::to_tier(31), BeastTrait::to_tier_match(31));
-        assert_eq!(BeastTrait::to_tier(32), BeastTrait::to_tier_match(32));
-        assert_eq!(BeastTrait::to_tier(33), BeastTrait::to_tier_match(33));
-        assert_eq!(BeastTrait::to_tier(34), BeastTrait::to_tier_match(34));
-        assert_eq!(BeastTrait::to_tier(35), BeastTrait::to_tier_match(35));
-        // Tier 3
-        assert_eq!(BeastTrait::to_tier(36), BeastTrait::to_tier_match(36));
-        assert_eq!(BeastTrait::to_tier(37), BeastTrait::to_tier_match(37));
-        assert_eq!(BeastTrait::to_tier(38), BeastTrait::to_tier_match(38));
-        assert_eq!(BeastTrait::to_tier(39), BeastTrait::to_tier_match(39));
-        assert_eq!(BeastTrait::to_tier(40), BeastTrait::to_tier_match(40));
-        // Tier 4
-        assert_eq!(BeastTrait::to_tier(41), BeastTrait::to_tier_match(41));
-        assert_eq!(BeastTrait::to_tier(42), BeastTrait::to_tier_match(42));
-        assert_eq!(BeastTrait::to_tier(43), BeastTrait::to_tier_match(43));
-        assert_eq!(BeastTrait::to_tier(44), BeastTrait::to_tier_match(44));
-        assert_eq!(BeastTrait::to_tier(45), BeastTrait::to_tier_match(45));
-        // Tier 5
-        assert_eq!(BeastTrait::to_tier(46), BeastTrait::to_tier_match(46));
-        assert_eq!(BeastTrait::to_tier(47), BeastTrait::to_tier_match(47));
-        assert_eq!(BeastTrait::to_tier(48), BeastTrait::to_tier_match(48));
-        assert_eq!(BeastTrait::to_tier(49), BeastTrait::to_tier_match(49));
-        assert_eq!(BeastTrait::to_tier(50), BeastTrait::to_tier_match(50));
-        // Tier 1
-        assert_eq!(BeastTrait::to_tier(51), BeastTrait::to_tier_match(51));
-        assert_eq!(BeastTrait::to_tier(52), BeastTrait::to_tier_match(52));
-        assert_eq!(BeastTrait::to_tier(53), BeastTrait::to_tier_match(53));
-        assert_eq!(BeastTrait::to_tier(54), BeastTrait::to_tier_match(54));
-        assert_eq!(BeastTrait::to_tier(55), BeastTrait::to_tier_match(55));
-        // Tier 2
-        assert_eq!(BeastTrait::to_tier(56), BeastTrait::to_tier_match(56));
-        assert_eq!(BeastTrait::to_tier(57), BeastTrait::to_tier_match(57));
-        assert_eq!(BeastTrait::to_tier(58), BeastTrait::to_tier_match(58));
-        assert_eq!(BeastTrait::to_tier(59), BeastTrait::to_tier_match(59));
-        assert_eq!(BeastTrait::to_tier(60), BeastTrait::to_tier_match(60));
-        // Tier 3
-        assert_eq!(BeastTrait::to_tier(61), BeastTrait::to_tier_match(61));
-        assert_eq!(BeastTrait::to_tier(62), BeastTrait::to_tier_match(62));
-        assert_eq!(BeastTrait::to_tier(63), BeastTrait::to_tier_match(63));
-        assert_eq!(BeastTrait::to_tier(64), BeastTrait::to_tier_match(64));
-        assert_eq!(BeastTrait::to_tier(65), BeastTrait::to_tier_match(65));
-        // Tier 4
-        assert_eq!(BeastTrait::to_tier(66), BeastTrait::to_tier_match(66));
-        assert_eq!(BeastTrait::to_tier(67), BeastTrait::to_tier_match(67));
-        assert_eq!(BeastTrait::to_tier(68), BeastTrait::to_tier_match(68));
-        assert_eq!(BeastTrait::to_tier(69), BeastTrait::to_tier_match(69));
-        assert_eq!(BeastTrait::to_tier(70), BeastTrait::to_tier_match(70));
-        // Tier 5
-        assert_eq!(BeastTrait::to_tier(71), BeastTrait::to_tier_match(71));
-        assert_eq!(BeastTrait::to_tier(72), BeastTrait::to_tier_match(72));
-        assert_eq!(BeastTrait::to_tier(73), BeastTrait::to_tier_match(73));
-        assert_eq!(BeastTrait::to_tier(74), BeastTrait::to_tier_match(74));
-        assert_eq!(BeastTrait::to_tier(75), BeastTrait::to_tier_match(75));
-        // invalid from here on...
-        assert_eq!(BeastTrait::to_tier(76), BeastTrait::to_tier_match(76));
+        for i in 0_u8..255_u8 {
+            assert_eq!(BeastTrait::to_tier(i), BeastTrait::_to_tier_match(i), "beast:{}", i);
+        }
     }
 
+    #[test]
+    fn test_randomize_beast_of_tier() {
+        for t in 1_u8..6_u8 {
+            for i in 0_u8..255_u8 {
+                let mut seed: Seeder = Seeder {
+                    seed: i.into(),
+                    current: 0,
+                };
+                let beast: u8 = BeastTrait::randomize_beast_of_tier(t, ref seed);
+                let tier: u8 = BeastTrait::to_tier(beast);
+// println!(">>> T{} beast:{} tier:{}", t, beast, tier);
+                assert_eq!(tier, t, "tier:{} beast:{} seed:{}", t, beast, i);
+            }
+        }
+    }
 
 }
