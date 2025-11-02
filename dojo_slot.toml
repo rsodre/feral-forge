@@ -37,7 +37,7 @@ default = "feral"
 #
 [owners]
 "pistols" = [
-  "feral-game",
+  "feral-game_token",
 ]
 
 #--------------------------
@@ -45,14 +45,14 @@ default = "feral"
 #
 [writers]
 "pistols" = [
-  "feral-game",
+  "feral-game_token",
 ]
 
 #--------------------------
 # init_calldata
 #
 [init_call_args]
-"feral-game" = [
+"feral-game_token" = [
 ]
 
 

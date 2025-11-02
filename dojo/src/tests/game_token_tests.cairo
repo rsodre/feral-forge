@@ -18,7 +18,7 @@ mod tests {
             tester,
             tester::{
                 TesterSystems,
-                IGameDispatcherTrait,
+                IGameTokenDispatcherTrait,
                 OWNER, OTHER, RECIPIENT,
             },
         },
@@ -26,7 +26,7 @@ mod tests {
 
     fn _mint_token(ref sys: TesterSystems, recipient: ContractAddress) -> u128 {
         tester::impersonate(recipient);
-        let token_id: u128 = sys.game.mint_game(recipient);
+        let token_id: u128 = sys.game.mint(recipient);
         (token_id)
     }
 
@@ -48,7 +48,7 @@ mod tests {
         _mint_token(ref sys, OWNER());
         let uri: ByteArray = sys.game.token_uri(1);
         assert_gt!(uri.len(), 1000, "token_uri.len()");
-        println!("GAME TOKEN URI: [{}]", uri);
+        // println!("GAME TOKEN URI: [{}]", uri);
     }
 
 

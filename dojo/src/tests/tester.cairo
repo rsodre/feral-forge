@@ -13,7 +13,7 @@ pub mod tester {
     };
     pub use feral::libs::{
         dns::{DnsTrait,
-            IGameDispatcher, IGameDispatcherTrait
+            IGameTokenDispatcher, IGameTokenDispatcherTrait
         },
         gameplay::{GameMatrix},
     };
@@ -33,7 +33,7 @@ pub mod tester {
     #[derive(Copy, Drop)]
     pub struct TesterSystems {
         pub world: WorldStorage,
-        pub game: IGameDispatcher,
+        pub game: IGameTokenDispatcher,
     }
 
     fn namespace_def() -> NamespaceDef {
@@ -42,14 +42,14 @@ pub mod tester {
             resources: [
                 TestResource::Model(feral::models::game_info::m_GameInfo::TEST_CLASS_HASH.into()),
                 TestResource::Event(feral::models::game_info::e_GameScoredEvent::TEST_CLASS_HASH.into()),
-                TestResource::Contract(feral::systems::game::game::TEST_CLASS_HASH.into()),
+                TestResource::Contract(feral::systems::game_token::game_token::TEST_CLASS_HASH.into()),
             ].span(),
         };
         (ndef)
     }
     fn contract_defs() -> Span<ContractDef> {
         [
-            ContractDefTrait::new(@"feral", @"game")
+            ContractDefTrait::new(@"feral", @"game_token")
                 .with_writer_of([dojo::utils::bytearray_hash(@"feral")].span())
         ].span()
     }
@@ -63,9 +63,9 @@ pub mod tester {
         );
         world.sync_perms_and_inits(contract_defs());
         world.dispatcher.grant_owner(dojo::utils::bytearray_hash(@"feral"), OWNER());
-        world.dispatcher.grant_owner(selector_from_tag!("feral-game"), OWNER());
+        world.dispatcher.grant_owner(selector_from_tag!("feral-game_token"), OWNER());
 
-        let game: IGameDispatcher = world.game_dispatcher();
+        let game: IGameTokenDispatcher = world.game_dispatcher();
 
         testing::set_block_number(1);
         testing::set_block_timestamp(1);

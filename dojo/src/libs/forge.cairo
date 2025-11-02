@@ -1,4 +1,4 @@
-use feral::systems::game::game::{
+use feral::systems::game_token::game_token::{
     Errors as GameErrors,
 };
 use feral::libs::{

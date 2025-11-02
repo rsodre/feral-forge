@@ -1,5 +1,5 @@
 pub mod systems {
-    pub mod game;
+    pub mod game_token;
 }
 
 pub mod models {
@@ -20,5 +20,5 @@ pub mod libs {
 
 pub mod tests {
     pub mod tester;
-    pub mod game_tests;
+    pub mod game_token_tests;
 }

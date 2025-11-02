@@ -1,6 +1,6 @@
 use dojo::world::WorldStorage;
 use dojo::model::ModelStorage;
-use feral::systems::game::game::{Errors as GameErrors};
+use feral::systems::game_token::game_token::{Errors as GameErrors};
 use feral::models::game_info::GameInfo;
 use feral::libs::rng::{Seeder, SeederTrait};
 use feral::libs::forge::{ForgeTrait};

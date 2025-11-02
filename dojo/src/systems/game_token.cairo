@@ -8,7 +8,7 @@ use feral::libs::gameplay::{
 
 
 #[starknet::interface]
-pub trait IGame<TState> {
+pub trait IGameToken<TState> {
     // IWorldProvider
     fn world_dispatcher(self: @TState) -> IWorldDispatcher;
 
@@ -58,7 +58,7 @@ pub trait IGame<TState> {
     //-----------------------------------
 
     // game
-    fn mint_game(ref self: TState, recipient: ContractAddress) -> u128;
+    fn mint(ref self: TState, recipient: ContractAddress) -> u128;
     fn submit_game(ref self: TState, game_id: u128, moves: Array<Direction>) -> GameState;
     fn start_game(self: @TState, game_id: u128) -> GameState;
     fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
@@ -71,8 +71,8 @@ pub trait IGame<TState> {
 }
 
 #[starknet::interface]
-pub trait IGamePublic<TState> {
-    fn mint_game(ref self: TState, recipient: ContractAddress) -> u128;
+pub trait IGameTokenPublic<TState> {
+    fn mint(ref self: TState, recipient: ContractAddress) -> u128;
     fn submit_game(ref self: TState, game_id: u128, moves: Array<Direction>) -> GameState;
     fn start_game(self: @TState, game_id: u128) -> GameState;
     fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
@@ -87,7 +87,7 @@ pub trait IGamePublic<TState> {
 }
 
 #[dojo::contract]
-pub mod game {
+pub mod game_token {
     use core::num::traits::Zero;
     use starknet::ContractAddress;
     use dojo::{
@@ -192,15 +192,15 @@ pub mod game {
 
 
     //-----------------------------------
-    // IGamePublic
+    // IGameTokenPublic
     //
     #[abi(embed_v0)]
-    impl GameTokenPublicImpl of super::IGamePublic<ContractState> {
+    impl GameTokenPublicImpl of super::IGameTokenPublic<ContractState> {
 
         //-----------------------------------
         // minting
         //
-        fn mint_game(ref self: ContractState, recipient: ContractAddress) -> u128 {
+        fn mint(ref self: ContractState, recipient: ContractAddress) -> u128 {
             let mut world: WorldStorage = self.world_default();
 
             // mint
@@ -352,7 +352,7 @@ pub mod game {
             assert(self._caller_is_owner(world), Errors::INVALID_CALLER);
         }
         fn _caller_is_owner(self: @ContractState, world: @WorldStorage) -> bool {
-            ((*world.dispatcher).is_owner(SELECTORS::GAME, starknet::get_caller_address()))
+            ((*world.dispatcher).is_owner(SELECTORS::GAME_TOKEN, starknet::get_caller_address()))
         }
         
         // fn _create_trophies(ref self: ContractState, ref world: WorldStorage) {

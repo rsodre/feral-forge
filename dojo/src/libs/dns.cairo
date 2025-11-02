@@ -6,12 +6,12 @@ use dojo::meta::interface::{
 };
 
 pub use feral::{
-    systems::game::{IGameDispatcher, IGameDispatcherTrait},
+    systems::game_token::{IGameTokenDispatcher, IGameTokenDispatcherTrait},
 };
 
 pub mod SELECTORS {
     // systems
-    pub const GAME: felt252 = selector_from_tag!("feral-game");
+    pub const GAME_TOKEN: felt252 = selector_from_tag!("feral-game_token");
 }
 
 #[generate_trait]
@@ -30,14 +30,14 @@ pub impl DnsImpl of DnsTrait {
     //
     #[inline(always)]
     fn game_address(self: @WorldStorage) -> ContractAddress {
-        (self.find_contract_address(@"game"))
+        (self.find_contract_address(@"game_token"))
     }
 
     //--------------------------
     // dispatchers
     //
     #[inline(always)]
-    fn game_dispatcher(self: @WorldStorage) -> IGameDispatcher {
-        (IGameDispatcher{ contract_address: self.game_address() })
+    fn game_dispatcher(self: @WorldStorage) -> IGameTokenDispatcher {
+        (IGameTokenDispatcher{ contract_address: self.game_address() })
     }
 }

@@ -115,7 +115,7 @@ export SDK_MANIFEST_PATH="$SDK_GAME_PATH/config/manifests"
 
 # contracts
 export ADMIN_ADDRESS=$(get_contract_address "feral-admin")
-export GAME_ADDRESS=$(get_contract_address "feral-game")
+export GAME_ADDRESS=$(get_contract_address "feral-game_token")
 
 # match rpc chain id with profile
 export CHAIN_ID=$(starkli chain-id --no-decode --rpc $RPC_URL | xxd -r -p)

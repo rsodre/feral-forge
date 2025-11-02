@@ -66,7 +66,7 @@ echo "👍"
 
 #
 # create torii config
-export GAME_ADDRESS=$(get_contract_address "feral-game")
+export GAME_ADDRESS=$(get_contract_address "feral-game_token")
 echo "------------------------------------------------------------------------------"
 echo ">>> Create torii config [$TORII_CONFIG_PATH]..."
 cp $TORII_CONFIG_TEMPLATE_PATH $TORII_CONFIG_PATH
