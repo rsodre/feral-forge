@@ -1,3 +1,4 @@
+use feral::libs::hash::{hash_values};
 
 #[derive(Copy, Drop, Serde)]
 pub struct Seeder {
@@ -16,6 +17,12 @@ pub impl SeederImpl of SeederTrait {
             seed,
             current: 0,
         })
+    }
+    fn rehash(ref self: Seeder) {
+        self = Seeder {
+            seed: hash_values([self.seed].span()),
+            current: 0,
+        };
     }
     fn get_next_u8(ref self: Seeder, max_exclusive: u8) -> u8 {
         ((self._next(max_exclusive.into(), 0xff, 0x100)).try_into().unwrap())

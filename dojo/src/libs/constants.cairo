@@ -4,6 +4,8 @@
 // https://github.com/Provable-Games/summit/blob/3d1ebe8e07c31b74d8279b4b2090016b9fec39b2/client/src/utils/BeastData.ts
 //
 
+pub const BEAST_COUNT: u8 = 75;
+
 pub mod BEAST_ID {
     pub const B00: u8 = 0;
     // Magical T1

@@ -9,10 +9,12 @@ pub mod models {
 pub mod libs {
     pub mod constants;
     pub mod metadata;
-    pub mod dns;
+    pub mod gameplay;
     pub mod beasts;
-    pub mod hash;
     pub mod merge;
+    pub mod dns;
+    // misc
+    pub mod hash;
     pub mod rng;
 }
 

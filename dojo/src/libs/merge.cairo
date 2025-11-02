@@ -1,31 +1,47 @@
-use feral::libs::rng::{Seeder};
-use feral::libs::beasts::{BeastTrait};
-use feral::libs::constants::{
-    BEAST_ID::*,
-    TIER::*,
+use feral::systems::game::game::{
+    Errors as GameErrors,
+};
+use feral::libs::{
+    gameplay::{
+        Direction,
+        GameMatrix,
+    },
+    constants::{
+        BEAST_ID::*,
+        TIER::*,
+    },
+    beasts::{BeastTrait},
+    rng::{Seeder, SeederTrait},
 };
 
-#[derive(Copy, Drop, Serde, Debug, Default)]
-pub enum Direction {
-    #[default]
-    None,   // 0
-    Right,  // 1
-    Left,   // 2
-    Down,   // 3
-    Up,     // 4
-}
-
-#[derive(Copy, Drop, Serde, Debug, Default)]
-pub struct TileMatrix {
-    pub b_1_1: u8, pub b_1_2: u8, pub b_1_3: u8, pub b_1_4: u8,
-    pub b_2_1: u8, pub b_2_2: u8, pub b_2_3: u8, pub b_2_4: u8,
-    pub b_3_1: u8, pub b_3_2: u8, pub b_3_3: u8, pub b_3_4: u8,
-    pub b_4_1: u8, pub b_4_2: u8, pub b_4_3: u8, pub b_4_4: u8,
-}
-
 #[generate_trait]
-impl MergeyImpl of MergeTrait {
-    fn merge_matrix(ref self: TileMatrix, dir: Direction, ref seeder: Seeder) -> u8 {
+pub impl MergeImpl of MergeTrait {
+
+    fn set_tile(ref self: GameMatrix, tile_index: u8, beast_id: u8) {
+        assert(tile_index < 16, GameErrors::INVALID_TILE);
+        assert(beast_id == 0 || BeastTrait::is_beast(beast_id), GameErrors::INVALID_BEAST);
+        match tile_index {
+            0  => { self.b_1_1 = beast_id; },
+            1  => { self.b_1_2 = beast_id; },
+            2  => { self.b_1_3 = beast_id; },
+            3  => { self.b_1_4 = beast_id; },
+            4  => { self.b_2_1 = beast_id; },
+            5  => { self.b_2_2 = beast_id; },
+            6  => { self.b_2_3 = beast_id; },
+            7  => { self.b_2_4 = beast_id; },
+            8  => { self.b_3_1 = beast_id; },
+            9  => { self.b_3_2 = beast_id; },
+            10 => { self.b_3_3 = beast_id; },
+            11 => { self.b_3_4 = beast_id; },
+            12 => { self.b_4_1 = beast_id; },
+            13 => { self.b_4_2 = beast_id; },
+            14 => { self.b_4_3 = beast_id; },
+            15 => { self.b_4_4 = beast_id; },
+            _ => {},
+        }
+    }
+
+    fn merge_matrix(ref self: GameMatrix, dir: Direction, spawn_new_tile: bool, ref seeder: Seeder) -> u8 {
         let mut f_1: u8 = 0;
         let mut f_2: u8 = 0;
         let mut f_3: u8 = 0;
@@ -57,10 +73,61 @@ impl MergeyImpl of MergeTrait {
             },
             Direction::None => {},
         }
-        let free: u8 = (f_1 + f_2 + f_3 + f_4);
+        // spawn a new T5 beast
+        let mut free: u8 = (f_1 + f_2 + f_3 + f_4);
+        if (spawn_new_tile && free > 0) {
+            let beast_id: u8 = BeastTrait::randomize_beast_of_tier(T5, ref seeder);
+            let ft: u8 = seeder.get_next_u8(free);
+            let (row, t): (u8, u8) =
+                if (ft < f_1) {(1, ft)}
+                else if (ft < f_1 + f_2) {(2, ft - f_1)}
+                else if (ft < f_1 + f_2 + f_3) {(3, ft - f_1 - f_2)}
+                else {(4, ft - f_1 - f_2 - f_3)};
+            // set tile
+            match dir {
+                Direction::Right => {
+                    if (row == 1) { Self::_spawn_free_tile(ref self.b_1_4, ref self.b_1_3, ref self.b_1_2, ref self.b_1_1, beast_id, t); }
+                    else if (row == 2) { Self::_spawn_free_tile(ref self.b_2_4, ref self.b_2_3, ref self.b_2_2, ref self.b_2_1, beast_id, t); }
+                    else if (row == 3) { Self::_spawn_free_tile(ref self.b_3_4, ref self.b_3_3, ref self.b_3_2, ref self.b_3_1, beast_id, t); }
+                    else if (row == 4) { Self::_spawn_free_tile(ref self.b_4_4, ref self.b_4_3, ref self.b_4_2, ref self.b_4_1, beast_id, t); }
+                },
+                Direction::Left => {
+                    if (row == 1) { Self::_spawn_free_tile(ref self.b_1_1, ref self.b_1_2, ref self.b_1_3, ref self.b_1_4, beast_id, t); }
+                    else if (row == 2) { Self::_spawn_free_tile(ref self.b_2_1, ref self.b_2_2, ref self.b_2_3, ref self.b_2_4, beast_id, t); }
+                    else if (row == 3) { Self::_spawn_free_tile(ref self.b_3_1, ref self.b_3_2, ref self.b_3_3, ref self.b_3_4, beast_id, t); }
+                    else if (row == 4) { Self::_spawn_free_tile(ref self.b_4_1, ref self.b_4_2, ref self.b_4_3, ref self.b_4_4, beast_id, t); }
+                },
+                Direction::Down => {
+                    if (row == 1) { Self::_spawn_free_tile(ref self.b_4_1, ref self.b_3_1, ref self.b_2_1, ref self.b_1_1, beast_id, t); }
+                    else if (row == 2) { Self::_spawn_free_tile(ref self.b_4_2, ref self.b_3_2, ref self.b_2_2, ref self.b_1_2, beast_id, t); }
+                    else if (row == 3) { Self::_spawn_free_tile(ref self.b_4_3, ref self.b_3_3, ref self.b_2_3, ref self.b_1_3, beast_id, t); }
+                    else if (row == 4) { Self::_spawn_free_tile(ref self.b_4_4, ref self.b_3_4, ref self.b_2_4, ref self.b_1_4, beast_id, t); }
+                },
+                Direction::Up => {
+                    if (row == 1) { Self::_spawn_free_tile(ref self.b_1_1, ref self.b_2_1, ref self.b_3_1, ref self.b_4_1, beast_id, t); }
+                    else if (row == 2) { Self::_spawn_free_tile(ref self.b_1_2, ref self.b_2_2, ref self.b_3_2, ref self.b_4_2, beast_id, t); }
+                    else if (row == 3) { Self::_spawn_free_tile(ref self.b_1_3, ref self.b_2_3, ref self.b_3_3, ref self.b_4_3, beast_id, t); }
+                    else if (row == 4) { Self::_spawn_free_tile(ref self.b_1_4, ref self.b_2_4, ref self.b_3_4, ref self.b_4_4, beast_id, t); }
+                },
+                Direction::None => {},
+            }
+            // one less free tile
+            free -= 1;
+        }
         // return the number of freed tiles
         (free)
     }
+
+    //
+    // Fill a free tile with a new beast
+    // * Free tiles are always from right to left
+    fn _spawn_free_tile(ref b_0: u8, ref b_1: u8, ref b_2: u8, ref b_3: u8, beast_id: u8, tile_index: u8) {
+        if (tile_index == 0) { b_3 = beast_id; }
+        else if (tile_index == 1) { b_2 = beast_id; }
+        else if (tile_index == 2) { b_1 = beast_id; }
+        else if (tile_index == 3) { b_0 = beast_id; }
+    }
+
     //
     // Try to merge a row of 4 tiles
     // * Collapses from right to left
@@ -197,22 +264,17 @@ impl MergeyImpl of MergeTrait {
             (b_1, 0, 1, false)
         } else if (b_1 == 0) {
             (b_0, 0, 1, false)
-        } else if (b_0 == b_1) {
-            if (BeastTrait::is_shiny(b_0)) {
-                // already shiny, no changes
-                (b_0, b_1, 0, false)
-            } else {
-                // >>> merge into a shiny
-                let b: u8 = BeastTrait::to_shiny(b_0);
-                (b, 0, 1, true)
-            }
         } else if (BeastTrait::is_shiny(b_0) || BeastTrait::is_shiny(b_1)) {
             // shiny is final, no changes
             (b_0, b_1, 0, false)
+        } else if (b_0 == b_1) {
+            // >>> merge into a shiny
+            let b: u8 = BeastTrait::to_shiny(b_0);
+            (b, 0, 1, true)
         } else {
             let t_0: u8 = BeastTrait::to_tier(b_0);
             if (t_0 > 1 && t_0 == BeastTrait::to_tier(b_1)) {
-                // >>> merge to the next tier
+                // >>> merge to higher tier
                 let b: u8 = BeastTrait::randomize_beast_of_tier(t_0 - 1, ref seeder);
                 (b, 0, 1, true)
             } else {
@@ -298,8 +360,16 @@ mod tests {
         _assert_pair_merge(25, 75, T4, ref seeder); // T5 > T4
     }
 
-    fn _count_free(i1: u8, i2: u8, i3: u8, i4: u8) -> u8 {
+    fn _count_free_row(i1: u8, i2: u8, i3: u8, i4: u8) -> u8 {
         (if (i1==0){1}else{0} + if(i2==0){1}else{0} + if(i3==0){1}else{0} + if(i4==0){1}else{0})
+    }
+    fn _count_free_matrix(m: GameMatrix) -> u8 {
+        (
+            _count_free_row(m.b_1_1, m.b_1_2, m.b_1_3, m.b_1_4) +
+            _count_free_row(m.b_2_1, m.b_2_2, m.b_2_3, m.b_2_4) +
+            _count_free_row(m.b_3_1, m.b_3_2, m.b_3_3, m.b_3_4) +
+            _count_free_row(m.b_4_1, m.b_4_2, m.b_4_3, m.b_4_4)
+        )
     }
 
     fn _assert_row_shift(
@@ -322,7 +392,7 @@ mod tests {
         assert_eq!(i2, o2, "_assert_row_shift[{}] i2", prefix);
         assert_eq!(i3, o3, "_assert_row_shift[{}] i3", prefix);
         assert_eq!(i4, o4, "_assert_row_shift[{}] i4", prefix);
-        assert_eq!(f, _count_free(o1, o2, o3, o4), "_assert_row_shift[{}] free", prefix);
+        assert_eq!(f, _count_free_row(o1, o2, o3, o4), "_assert_row_shift[{}] free", prefix);
     }
     fn _assert_row_merge(
         mut i1: u8, mut i2: u8, mut i3: u8, mut i4: u8,
@@ -344,7 +414,7 @@ mod tests {
         assert_eq!(ti2, to2, "_assert_row_merge[{}] i2({})", prefix, i2);
         assert_eq!(ti3, to3, "_assert_row_merge[{}] i3({})", prefix, i3);
         assert_eq!(ti4, to4, "_assert_row_merge[{}] i4({})", prefix, i4);
-        assert_eq!(f, _count_free(to1, to2, to3, to4), "_assert_row_merge[{}] free", prefix);
+        assert_eq!(f, _count_free_row(to1, to2, to3, to4), "_assert_row_merge[{}] free", prefix);
     }
 
     #[test]
@@ -449,7 +519,7 @@ mod tests {
             T1, T2, T3, 0, ref seeder);
         //
         // merged 1st...
-        seeder.current = 0x05fa5438c7ccbcbae63ec200779acf8b7; // boost RNG
+        seeder.rehash(); // boost RNG
         _assert_row_merge( // [B:1]
             B06, B07, B11, 0,
             T1, T3, 0, 0, ref seeder);
@@ -483,7 +553,7 @@ mod tests {
             T3, T1, 0, 0, ref seeder);
         //
         // merged full
-        seeder.current = 0x05fa5438c7ccbcbae63ec200779acf8b7; // boost RNG
+        seeder.rehash(); // boost RNG
         _assert_row_merge( // [C:1]
             B06, B07, B06, 0,
             T1, T2, 0, 0, ref seeder);
@@ -524,7 +594,7 @@ mod tests {
             T1, T1, 0, 0, ref seeder);
         //
         // merge 1 + shift 2
-        seeder.current = 0x05fa5438c7ccbcbae63ec200779acf8b7; // boost RNG
+        seeder.rehash(); // boost RNG
         _assert_row_merge(
             B06, B07, B11, B16,
             T1, T3, T4, 0, ref seeder);
@@ -577,9 +647,9 @@ mod tests {
     }
 
 
-    fn _assert_matrix_shift(mi: TileMatrix, mo: TileMatrix, dir: Direction, ref seeder: Seeder, prefix: ByteArray) {
-        let mut m: TileMatrix = mi;
-        let free: u8 = MergeTrait::merge_matrix(ref m, dir, ref seeder);
+    fn _assert_matrix_shift(mi: GameMatrix, mo: GameMatrix, dir: Direction, ref seeder: Seeder, prefix: ByteArray) {
+        let mut m: GameMatrix = mi;
+        let free: u8 = MergeTrait::merge_matrix(ref m, dir, false, ref seeder);
         assert_eq!(m.b_1_1, mo.b_1_1, "_assert_matrix_shift[{}]", prefix);
         assert_eq!(m.b_1_2, mo.b_1_2, "_assert_matrix_shift[{}]", prefix);
         assert_eq!(m.b_1_3, mo.b_1_3, "_assert_matrix_shift[{}]", prefix);
@@ -596,13 +666,13 @@ mod tests {
         assert_eq!(m.b_4_2, mo.b_4_2, "_assert_matrix_shift[{}]", prefix);
         assert_eq!(m.b_4_3, mo.b_4_3, "_assert_matrix_shift[{}]", prefix);
         assert_eq!(m.b_4_4, mo.b_4_4, "_assert_matrix_shift[{}]", prefix);
-        let ff: u8 = (_count_free(m.b_1_1, m.b_1_2, m.b_1_3, m.b_1_4)) + (_count_free(m.b_2_1, m.b_2_2, m.b_2_3, m.b_2_4)) + (_count_free(m.b_3_1, m.b_3_2, m.b_3_3, m.b_3_4)) + (_count_free(m.b_4_1, m.b_4_2, m.b_4_3, m.b_4_4));
+        let ff: u8 = _count_free_matrix(m);
         assert_eq!(free, ff, "_assert_matrix_shift[{}] free", prefix);
     }
 
-    fn _assert_matrix_merge(mi: TileMatrix, to: TileMatrix, dir: Direction, ref seeder: Seeder, prefix: ByteArray) -> TileMatrix {
-        let mut m: TileMatrix = mi;
-        let free: u8 = MergeTrait::merge_matrix(ref m, dir, ref seeder);
+    fn _assert_matrix_merge(mi: GameMatrix, to: GameMatrix, dir: Direction, ref seeder: Seeder, prefix: ByteArray) -> GameMatrix {
+        let mut m: GameMatrix = mi;
+        let free: u8 = MergeTrait::merge_matrix(ref m, dir, false, ref seeder);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_1_1), to.b_1_1, "_assert_matrix_merge[{}] ({})", prefix, m.b_1_1);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_1_2), to.b_1_2, "_assert_matrix_merge[{}] ({})", prefix, m.b_1_2);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_1_3), to.b_1_3, "_assert_matrix_merge[{}] ({})", prefix, m.b_1_3);
@@ -619,7 +689,7 @@ mod tests {
         assert_eq!(BeastTrait::to_tier_shiny(m.b_4_2), to.b_4_2, "_assert_matrix_merge[{}] ({})", prefix, m.b_4_2);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_4_3), to.b_4_3, "_assert_matrix_merge[{}] ({})", prefix, m.b_4_3);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_4_4), to.b_4_4, "_assert_matrix_merge[{}] ({})", prefix, m.b_4_4);
-        let ff: u8 = (_count_free(m.b_1_1, m.b_1_2, m.b_1_3, m.b_1_4)) + (_count_free(m.b_2_1, m.b_2_2, m.b_2_3, m.b_2_4)) + (_count_free(m.b_3_1, m.b_3_2, m.b_3_3, m.b_3_4)) + (_count_free(m.b_4_1, m.b_4_2, m.b_4_3, m.b_4_4));
+        let ff: u8 = _count_free_matrix(m);
         assert_eq!(free, ff, "_assert_matrix_merge[{}] free", prefix);
         (m)
     }
@@ -630,26 +700,26 @@ mod tests {
             seed: 0x05fa5438c7ccbcbae63ec200779acf8b71f34f432e9f0e7adec7a74230850c6b,
             current: 0,
         };
-        let m: TileMatrix = TileMatrix {
+        let m: GameMatrix = GameMatrix {
             b_1_1: B01, b_1_2: B06, b_1_3: 0, b_1_4: 0,
             b_2_1: B11, b_2_2: B26, b_2_3: 0, b_2_4: 0,
             b_3_1: 0, b_3_2: 0, b_3_3: 0, b_3_4: 0,
             b_4_1: 0, b_4_2: 0, b_4_3: 0, b_4_4: 0,
         };
         // >> RIGHT
-        let m_right: TileMatrix = TileMatrix {
+        let m_right: GameMatrix = GameMatrix {
             b_1_1: 0, b_1_2: 0, b_1_3: B01, b_1_4: B06,
             b_2_1: 0, b_2_2: 0, b_2_3: B11, b_2_4: B26,
             b_3_1: 0, b_3_2: 0, b_3_3: 0, b_3_4: 0,
             b_4_1: 0, b_4_2: 0, b_4_3: 0, b_4_4: 0,
         };
-        let m_down: TileMatrix = TileMatrix {
+        let m_down: GameMatrix = GameMatrix {
             b_1_1: 0, b_1_2: 0, b_1_3: 0, b_1_4: 0,
             b_2_1: 0, b_2_2: 0, b_2_3: 0, b_2_4: 0,
             b_3_1: 0, b_3_2: 0, b_3_3: B01, b_3_4: B06,
             b_4_1: 0, b_4_2: 0, b_4_3: B11, b_4_4: B26,
         };
-        let m_left: TileMatrix = TileMatrix {
+        let m_left: GameMatrix = GameMatrix {
             b_1_1: 0, b_1_2: 0, b_1_3: 0, b_1_4: 0,
             b_2_1: 0, b_2_2: 0, b_2_3: 0, b_2_4: 0,
             b_3_1: B01, b_3_2: B06, b_3_3: 0, b_3_4: 0,
@@ -668,32 +738,32 @@ mod tests {
             seed: 0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfc,
             current: 0,
         };
-        let m: TileMatrix = TileMatrix {
+        let m: GameMatrix = GameMatrix {
             b_1_1: B21, b_1_2: B22, b_1_3: B21, b_1_4: B22,
             b_2_1: B21, b_2_2: B22, b_2_3: B21, b_2_4: B22,
             b_3_1: B21, b_3_2: B22, b_3_3: B21, b_3_4: B22,
             b_4_1: B21, b_4_2: B22, b_4_3: B21, b_4_4: B22,
         };
         // >> RIGHT
-        let mut m_right: TileMatrix = TileMatrix {
+        let mut m_right: GameMatrix = GameMatrix {
             b_1_1: 0, b_1_2: 0, b_1_3: T4, b_1_4: T4,
             b_2_1: 0, b_2_2: 0, b_2_3: T4, b_2_4: T4,
             b_3_1: 0, b_3_2: 0, b_3_3: T4, b_3_4: T4,
             b_4_1: 0, b_4_2: 0, b_4_3: T4, b_4_4: T4,
         };
-        let mut m_down: TileMatrix = TileMatrix {
+        let mut m_down: GameMatrix = GameMatrix {
             b_1_1: 0, b_1_2: 0, b_1_3: 0, b_1_4: 0,
             b_2_1: 0, b_2_2: 0, b_2_3: 0, b_2_4: 0,
             b_3_1: 0, b_3_2: 0, b_3_3: T3, b_3_4: T3,
             b_4_1: 0, b_4_2: 0, b_4_3: T3, b_4_4: T3,
         };
-        let mut m_left: TileMatrix = TileMatrix {
+        let mut m_left: GameMatrix = GameMatrix {
             b_1_1: 0, b_1_2: 0, b_1_3: 0, b_1_4: 0,
             b_2_1: 0, b_2_2: 0, b_2_3: 0, b_2_4: 0,
             b_3_1: T2, b_3_2: 0, b_3_3: 0, b_3_4: 0,
             b_4_1: T2, b_4_2: 0, b_4_3: 0, b_4_4: 0,
         };
-        let mut m_up: TileMatrix = TileMatrix {
+        let mut m_up: GameMatrix = GameMatrix {
             b_1_1: T1, b_1_2: 0, b_1_3: 0, b_1_4: 0,
             b_2_1: 0, b_2_2: 0, b_2_3: 0, b_2_4: 0,
             b_3_1: 0, b_3_2: 0, b_3_3: 0, b_3_4: 0,
@@ -704,4 +774,132 @@ mod tests {
         m_left = _assert_matrix_merge(m_down, m_left, Direction::Left, ref seeder, "LEFT");
         m_up = _assert_matrix_merge(m_left, m_up, Direction::Up, ref seeder, "UP");
     }
+
+
+    #[test]
+    fn test_merge_matrix_spawn() {
+        let mut seeder: Seeder = Seeder {
+            seed: 0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfc,
+            current: 0,
+        };
+        //
+        // Up -- fill bottom
+        let mut m: GameMatrix = GameMatrix {
+            b_1_1: B11, b_1_2: B02, b_1_3: B11, b_1_4: B02,
+            b_2_1: B02, b_2_2: B11, b_2_3: B02, b_2_4: B11,
+            b_3_1: B11, b_3_2: B02, b_3_3: B11, b_3_4: B02,
+            b_4_1: 0, b_4_2: 0, b_4_3: 0, b_4_4: 0,
+            // b_4_1: B02, b_4_2: B11, b_4_3: B02, b_4_4: B11,
+        };
+        assert_eq!(_count_free_matrix(m), 4, "Up");
+        MergeTrait::merge_matrix(ref m, Direction::Up, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 3, "Up");
+        MergeTrait::merge_matrix(ref m, Direction::Up, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 2, "Up");
+        MergeTrait::merge_matrix(ref m, Direction::Up, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 1, "Up");
+        MergeTrait::merge_matrix(ref m, Direction::Up, true, ref seeder);
+// _print_matrix(m, "Up");
+        assert_eq!(_count_free_matrix(m), 0, "Up");
+        //
+        // Down -- fill top
+        let mut m: GameMatrix = GameMatrix {
+            // b_1_1: B11, b_1_2: B02, b_1_3: B11, b_1_4: B02,
+            b_1_1: 0, b_1_2: 0, b_1_3: 0, b_1_4: 0,
+            b_2_1: B02, b_2_2: B11, b_2_3: B02, b_2_4: B11,
+            b_3_1: B11, b_3_2: B02, b_3_3: B11, b_3_4: B02,
+            b_4_1: B02, b_4_2: B11, b_4_3: B02, b_4_4: B11,
+        };
+        seeder.rehash(); // boost RNG
+        assert_eq!(_count_free_matrix(m), 4, "Down");
+        MergeTrait::merge_matrix(ref m, Direction::Down, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 3, "Down");
+        MergeTrait::merge_matrix(ref m, Direction::Down, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 2, "Down");
+        MergeTrait::merge_matrix(ref m, Direction::Down, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 1, "Down");
+        MergeTrait::merge_matrix(ref m, Direction::Down, true, ref seeder);
+// _print_matrix(m, "Down");
+        assert_eq!(_count_free_matrix(m), 0, "Down");
+        //
+        // Right -- fill left
+        let mut m: GameMatrix = GameMatrix {
+            b_1_1: 0, b_1_2: B02, b_1_3: B11, b_1_4: B02,
+            b_2_1: 0, b_2_2: B11, b_2_3: B02, b_2_4: B11,
+            b_3_1: 0, b_3_2: B02, b_3_3: B11, b_3_4: B02,
+            b_4_1: 0, b_4_2: B11, b_4_3: B02, b_4_4: B11,
+        };
+        seeder.rehash(); // boost RNG
+        assert_eq!(_count_free_matrix(m), 4, "Right");
+        MergeTrait::merge_matrix(ref m, Direction::Right, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 3, "Right");
+        MergeTrait::merge_matrix(ref m, Direction::Right, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 2, "Right");
+        MergeTrait::merge_matrix(ref m, Direction::Right, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 1, "Right");
+        MergeTrait::merge_matrix(ref m, Direction::Right, true, ref seeder);
+// _print_matrix(m, "Right");
+        assert_eq!(_count_free_matrix(m), 0, "Right");
+        //
+        // Left -- fill right
+        let mut m: GameMatrix = GameMatrix {
+            b_1_1: B11, b_1_2: B02, b_1_3: B11, b_1_4: 0,
+            b_2_1: B02, b_2_2: B11, b_2_3: B02, b_2_4: 0,
+            b_3_1: B11, b_3_2: B02, b_3_3: B11, b_3_4: 0,
+            b_4_1: B02, b_4_2: B11, b_4_3: B02, b_4_4: 0,
+        };
+        seeder.rehash(); // boost RNG
+        assert_eq!(_count_free_matrix(m), 4, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 3, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 2, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        assert_eq!(_count_free_matrix(m), 1, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+// _print_matrix(m, "Left");
+        assert_eq!(_count_free_matrix(m), 0, "Left");
+    }
+
+
+    #[test]
+    #[ignore]
+    fn test_merge_matrix_spawn_simulate() {
+        let mut seeder: Seeder = Seeder {
+            seed: 0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfc,
+            current: 0,
+        };
+        let mut m: GameMatrix = GameMatrix {
+            b_1_1: B11, b_1_2: 0, b_1_3: 0, b_1_4: 0,
+            b_2_1: B02, b_2_2: 0, b_2_3: 0, b_2_4: 0,
+            b_3_1: B11, b_3_2: 0, b_3_3: 0, b_3_4: 0,
+            b_4_1: B02, b_4_2: 0, b_4_3: 0, b_4_4: 0,
+        };
+        seeder.rehash(); // boost RNG
+_print_matrix(m, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+_print_matrix(m, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+_print_matrix(m, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+_print_matrix(m, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+_print_matrix(m, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+_print_matrix(m, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+_print_matrix(m, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+_print_matrix(m, "Left");
+        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+    }
+
+    fn _print_matrix(m: GameMatrix, prefix: ByteArray) {
+        println!("-------:");
+        println!("[{}][0]: {} {} {} {}", prefix, m.b_1_1, m.b_1_2, m.b_1_3, m.b_1_4);
+        println!("[{}][1]: {} {} {} {}", prefix, m.b_2_1, m.b_2_2, m.b_2_3, m.b_2_4);
+        println!("[{}][2]: {} {} {} {}", prefix, m.b_3_1, m.b_3_2, m.b_3_3, m.b_3_4);
+        println!("[{}][3]: {} {} {} {}", prefix, m.b_4_1, m.b_4_2, m.b_4_3, m.b_4_4);
+    }
+
 }
