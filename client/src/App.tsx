@@ -2,15 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Flex, Text, Button, Grid, Box, Inset, Card, AspectRatio, Link, Heading, Spinner } from '@radix-ui/themes'
 import { useAccount, useBlockNumber } from '@starknet-react/core';
 import { useDojoSDK } from '@dojoengine/sdk/react';
-import { WalletAccount } from './wallet-account';
-import { SchemaType } from './generated/typescript/models.gen';
+import { WalletAccount } from './dojo/wallet-account';
+import { SchemaType } from './generated/models.gen';
 // import * as torii from "@dojoengine/torii-wasm";
 // import { getContractByName } from '@dojoengine/core';
 // import manifest from './generated/manifest_dev.json';
 
 export default function App() {
   const { sdk, client } = useDojoSDK<() => any, SchemaType>();
-  const { account, isConnected } = useAccount();
+  const { account, address, isConnected } = useAccount();
   const { data: blockNumber } = useBlockNumber({
     refetchInterval: 1000,
   });
@@ -19,7 +19,7 @@ export default function App() {
   useEffect(() => {
     if (client) {
       console.log("Getting total supply...");
-      client.token.totalSupply().then((totalSupply: number) => {
+      client?.game_token.totalSupply().then((totalSupply: number) => {
         setTotalSupply(Number(totalSupply));
       });
     }
@@ -28,7 +28,7 @@ export default function App() {
   const _mint = useCallback(() => {
     if (client && account) {
       console.log("Minting...");
-      client.minter.mint(account);
+      client.game_token.mint(account, address);
     }
   }, [client, account]);
 
@@ -78,7 +78,7 @@ const ContractInfo = () => {
   const { client } = useDojoSDK<() => any, SchemaType>();
   const [uri, setUri] = useState<any>({});
   useEffect(() => {
-    client?.token.contractUri().then((uri: string) => {
+    client?.game_token.contractUri().then((uri: string) => {
       const json = JSON.parse(uri.replace('data:application/json,', ''));
       setUri(json);
     });
@@ -111,14 +111,14 @@ const TokenImage = ({
   const { client } = useDojoSDK<() => any, SchemaType>();
   const [image, setImage] = useState('');
   useEffect(() => {
-    client?.token.tokenUri(tokenId).then((uri: string) => {
+    client?.game_token.tokenUri(tokenId).then((uri: string) => {
       const json = JSON.parse(uri.replace('data:application/json,', ''));
       setImage(json.image);
     });
   }, [client, tokenId]);
   if (!image) return <Spinner />;
   return (
-    <Image src={image} label={`ASTRAEA#${tokenId}`} tokenId={tokenId} setTokenId={setTokenId} />
+    <Image src={image} label={`FORGE#${tokenId}`} tokenId={tokenId} setTokenId={setTokenId} />
   );
 };
 
