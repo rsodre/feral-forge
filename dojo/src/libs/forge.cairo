@@ -132,6 +132,26 @@ pub impl ForgeImpl of ForgeTrait {
         (free)
     }
 
+    fn count_beasts(self: GameMatrix) -> u8 {
+        (16 - self.count_free_tiles())
+    }
+    fn count_free_tiles(self: GameMatrix) -> u8 {
+        (
+            Self::_count_free_row(self.b_1_1, self.b_1_2, self.b_1_3, self.b_1_4) +
+            Self::_count_free_row(self.b_2_1, self.b_2_2, self.b_2_3, self.b_2_4) +
+            Self::_count_free_row(self.b_3_1, self.b_3_2, self.b_3_3, self.b_3_4) +
+            Self::_count_free_row(self.b_4_1, self.b_4_2, self.b_4_3, self.b_4_4)
+        )
+    }
+    fn _count_free_row(i1: u8, i2: u8, i3: u8, i4: u8) -> u8 {
+        (if (i1==0){1}else{0} + if(i2==0){1}else{0} + if(i3==0){1}else{0} + if(i4==0){1}else{0})
+    }
+
+    
+    //---------------------------------------
+    // internal methods
+    //
+
     //
     // Fill a free tile with a new beast
     // * Free tiles are always from right to left
@@ -307,6 +327,7 @@ pub impl ForgeImpl of ForgeTrait {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use feral::tests::tester::{tester};
 
     fn _assert_pair_same(i1: u8, i2: u8, o1: u8, o2: u8, merged: bool, ref seeder: Seeder) {
         let prefix: ByteArray = format!("({},{}) -> ({},{})", i1, i2, o1, o2);
@@ -374,18 +395,6 @@ mod tests {
         _assert_pair_merge(25, 75, T4, ref seeder); // T5 > T4
     }
 
-    fn _count_free_row(i1: u8, i2: u8, i3: u8, i4: u8) -> u8 {
-        (if (i1==0){1}else{0} + if(i2==0){1}else{0} + if(i3==0){1}else{0} + if(i4==0){1}else{0})
-    }
-    fn _count_free_matrix(m: GameMatrix) -> u8 {
-        (
-            _count_free_row(m.b_1_1, m.b_1_2, m.b_1_3, m.b_1_4) +
-            _count_free_row(m.b_2_1, m.b_2_2, m.b_2_3, m.b_2_4) +
-            _count_free_row(m.b_3_1, m.b_3_2, m.b_3_3, m.b_3_4) +
-            _count_free_row(m.b_4_1, m.b_4_2, m.b_4_3, m.b_4_4)
-        )
-    }
-
     fn _assert_row_shift(
         mut i1: u8, mut i2: u8, mut i3: u8, mut i4: u8,
         o1: u8, o2: u8, o3: u8, o4: u8,
@@ -406,7 +415,7 @@ mod tests {
         assert_eq!(i2, o2, "_assert_row_shift[{}] i2", prefix);
         assert_eq!(i3, o3, "_assert_row_shift[{}] i3", prefix);
         assert_eq!(i4, o4, "_assert_row_shift[{}] i4", prefix);
-        assert_eq!(f, _count_free_row(o1, o2, o3, o4), "_assert_row_shift[{}] free", prefix);
+        assert_eq!(f, ForgeTrait::_count_free_row(o1, o2, o3, o4), "_assert_row_shift[{}] free", prefix);
     }
     fn _assert_row_merge(
         mut i1: u8, mut i2: u8, mut i3: u8, mut i4: u8,
@@ -428,7 +437,7 @@ mod tests {
         assert_eq!(ti2, to2, "_assert_row_merge[{}] i2({})", prefix, i2);
         assert_eq!(ti3, to3, "_assert_row_merge[{}] i3({})", prefix, i3);
         assert_eq!(ti4, to4, "_assert_row_merge[{}] i4({})", prefix, i4);
-        assert_eq!(f, _count_free_row(to1, to2, to3, to4), "_assert_row_merge[{}] free", prefix);
+        assert_eq!(f, ForgeTrait::_count_free_row(to1, to2, to3, to4), "_assert_row_merge[{}] free", prefix);
     }
 
     #[test]
@@ -680,7 +689,7 @@ mod tests {
         assert_eq!(m.b_4_2, mo.b_4_2, "_assert_matrix_shift[{}]", prefix);
         assert_eq!(m.b_4_3, mo.b_4_3, "_assert_matrix_shift[{}]", prefix);
         assert_eq!(m.b_4_4, mo.b_4_4, "_assert_matrix_shift[{}]", prefix);
-        let ff: u8 = _count_free_matrix(m);
+        let ff: u8 = m.count_free_tiles();
         assert_eq!(free, ff, "_assert_matrix_shift[{}] free", prefix);
     }
 
@@ -703,7 +712,7 @@ mod tests {
         assert_eq!(BeastTrait::to_tier_shiny(m.b_4_2), to.b_4_2, "_assert_matrix_merge[{}] ({})", prefix, m.b_4_2);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_4_3), to.b_4_3, "_assert_matrix_merge[{}] ({})", prefix, m.b_4_3);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_4_4), to.b_4_4, "_assert_matrix_merge[{}] ({})", prefix, m.b_4_4);
-        let ff: u8 = _count_free_matrix(m);
+        let ff: u8 = m.count_free_tiles();
         assert_eq!(free, ff, "_assert_matrix_merge[{}] free", prefix);
         (m)
     }
@@ -805,16 +814,16 @@ mod tests {
             b_4_1: 0, b_4_2: 0, b_4_3: 0, b_4_4: 0,
             // b_4_1: B02, b_4_2: B11, b_4_3: B02, b_4_4: B11,
         };
-        assert_eq!(_count_free_matrix(m), 4, "Up");
+        assert_eq!(m.count_free_tiles(), 4, "Up");
         ForgeTrait::forge_direction(ref m, Direction::Up, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 3, "Up");
+        assert_eq!(m.count_free_tiles(), 3, "Up");
         ForgeTrait::forge_direction(ref m, Direction::Up, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 2, "Up");
+        assert_eq!(m.count_free_tiles(), 2, "Up");
         ForgeTrait::forge_direction(ref m, Direction::Up, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 1, "Up");
+        assert_eq!(m.count_free_tiles(), 1, "Up");
         ForgeTrait::forge_direction(ref m, Direction::Up, true, ref seeder);
-// _print_matrix(m, "Up");
-        assert_eq!(_count_free_matrix(m), 0, "Up");
+// tester::print_matrix(@m, "Up");
+        assert_eq!(m.count_free_tiles(), 0, "Up");
         //
         // Down -- fill top
         let mut m: GameMatrix = GameMatrix {
@@ -825,16 +834,16 @@ mod tests {
             b_4_1: B02, b_4_2: B11, b_4_3: B02, b_4_4: B11,
         };
         seeder.rehash(); // boost RNG
-        assert_eq!(_count_free_matrix(m), 4, "Down");
+        assert_eq!(m.count_free_tiles(), 4, "Down");
         ForgeTrait::forge_direction(ref m, Direction::Down, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 3, "Down");
+        assert_eq!(m.count_free_tiles(), 3, "Down");
         ForgeTrait::forge_direction(ref m, Direction::Down, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 2, "Down");
+        assert_eq!(m.count_free_tiles(), 2, "Down");
         ForgeTrait::forge_direction(ref m, Direction::Down, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 1, "Down");
+        assert_eq!(m.count_free_tiles(), 1, "Down");
         ForgeTrait::forge_direction(ref m, Direction::Down, true, ref seeder);
-// _print_matrix(m, "Down");
-        assert_eq!(_count_free_matrix(m), 0, "Down");
+// tester::print_matrix(@m, "Down");
+        assert_eq!(m.count_free_tiles(), 0, "Down");
         //
         // Right -- fill left
         let mut m: GameMatrix = GameMatrix {
@@ -844,16 +853,16 @@ mod tests {
             b_4_1: 0, b_4_2: B11, b_4_3: B02, b_4_4: B11,
         };
         seeder.rehash(); // boost RNG
-        assert_eq!(_count_free_matrix(m), 4, "Right");
+        assert_eq!(m.count_free_tiles(), 4, "Right");
         ForgeTrait::forge_direction(ref m, Direction::Right, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 3, "Right");
+        assert_eq!(m.count_free_tiles(), 3, "Right");
         ForgeTrait::forge_direction(ref m, Direction::Right, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 2, "Right");
+        assert_eq!(m.count_free_tiles(), 2, "Right");
         ForgeTrait::forge_direction(ref m, Direction::Right, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 1, "Right");
+        assert_eq!(m.count_free_tiles(), 1, "Right");
         ForgeTrait::forge_direction(ref m, Direction::Right, true, ref seeder);
-// _print_matrix(m, "Right");
-        assert_eq!(_count_free_matrix(m), 0, "Right");
+// tester::print_matrix(@m, "Right");
+        assert_eq!(m.count_free_tiles(), 0, "Right");
         //
         // Left -- fill right
         let mut m: GameMatrix = GameMatrix {
@@ -863,16 +872,16 @@ mod tests {
             b_4_1: B02, b_4_2: B11, b_4_3: B02, b_4_4: 0,
         };
         seeder.rehash(); // boost RNG
-        assert_eq!(_count_free_matrix(m), 4, "Left");
+        assert_eq!(m.count_free_tiles(), 4, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 3, "Left");
+        assert_eq!(m.count_free_tiles(), 3, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 2, "Left");
+        assert_eq!(m.count_free_tiles(), 2, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-        assert_eq!(_count_free_matrix(m), 1, "Left");
+        assert_eq!(m.count_free_tiles(), 1, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-// _print_matrix(m, "Left");
-        assert_eq!(_count_free_matrix(m), 0, "Left");
+// tester::print_matrix(@m, "Left");
+        assert_eq!(m.count_free_tiles(), 0, "Left");
     }
 
 
@@ -890,30 +899,22 @@ mod tests {
             b_4_1: B02, b_4_2: 0, b_4_3: 0, b_4_4: 0,
         };
         seeder.rehash(); // boost RNG
-_print_matrix(m, "Left");
+tester::print_matrix(@m, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-_print_matrix(m, "Left");
+tester::print_matrix(@m, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-_print_matrix(m, "Left");
+tester::print_matrix(@m, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-_print_matrix(m, "Left");
+tester::print_matrix(@m, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-_print_matrix(m, "Left");
+tester::print_matrix(@m, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-_print_matrix(m, "Left");
+tester::print_matrix(@m, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-_print_matrix(m, "Left");
+tester::print_matrix(@m, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-_print_matrix(m, "Left");
+tester::print_matrix(@m, "Left");
         ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
-    }
-
-    fn _print_matrix(m: GameMatrix, prefix: ByteArray) {
-        println!("-------:");
-        println!("[{}][0]: {} {} {} {}", prefix, m.b_1_1, m.b_1_2, m.b_1_3, m.b_1_4);
-        println!("[{}][1]: {} {} {} {}", prefix, m.b_2_1, m.b_2_2, m.b_2_3, m.b_2_4);
-        println!("[{}][2]: {} {} {} {}", prefix, m.b_3_1, m.b_3_2, m.b_3_3, m.b_3_4);
-        println!("[{}][3]: {} {} {} {}", prefix, m.b_4_1, m.b_4_2, m.b_4_3, m.b_4_4);
     }
 
 }

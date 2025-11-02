@@ -36,6 +36,7 @@ pub struct GameState {
     pub seed: felt252,
     pub matrix: GameMatrix,
     pub free_tiles: u8,
+    pub move_count: u16,
     pub finished: bool,
     pub score: u32,
 }
@@ -62,6 +63,7 @@ pub impl GameplayImpl of GameplayTrait {
             seed: game_info.seed,
             matrix: Default::default(),
             free_tiles: (16 - 2),
+            move_count: 0,
             finished: false,
             score: 0,
         };
@@ -89,6 +91,8 @@ pub impl GameplayImpl of GameplayTrait {
         let mut seeder: Seeder = self.make_seeder();
         seeder.rehash();
         // move!
+        self.seed = seeder.seed;
+        self.move_count += 1;
         self.free_tiles = self.matrix.forge_direction(direction, true, ref seeder);
         self.finished = (self.free_tiles == 0);
     }

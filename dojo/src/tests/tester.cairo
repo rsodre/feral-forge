@@ -15,6 +15,7 @@ pub mod tester {
         dns::{DnsTrait,
             IGameDispatcher, IGameDispatcherTrait
         },
+        gameplay::{GameMatrix},
     };
 
     pub fn impersonate(caller: ContractAddress) {
@@ -73,5 +74,13 @@ pub mod tester {
             world,
             game,
         })
+    }
+
+    pub fn print_matrix(m: @GameMatrix, prefix: ByteArray) {
+        println!("-------:");
+        println!("[{}][0]: {} {} {} {}", prefix, m.b_1_1, m.b_1_2, m.b_1_3, m.b_1_4);
+        println!("[{}][1]: {} {} {} {}", prefix, m.b_2_1, m.b_2_2, m.b_2_3, m.b_2_4);
+        println!("[{}][2]: {} {} {} {}", prefix, m.b_3_1, m.b_3_2, m.b_3_3, m.b_3_4);
+        println!("[{}][3]: {} {} {} {}", prefix, m.b_4_1, m.b_4_2, m.b_4_3, m.b_4_4);
     }
 }

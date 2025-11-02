@@ -11,6 +11,8 @@ mod tests {
         },
         libs::{
             metadata,
+            gameplay::{GameState, Direction},
+            forge::{ForgeTrait},
         },
         tests::tester::{
             tester,
@@ -115,6 +117,118 @@ mod tests {
         assert_ne!(game_info_3.seed, game_info_1.seed, "token_3");
         assert_ne!(game_info_3.seed, game_info_2.seed, "token_3");
         assert_ne!(game_info_3.seed, 0, "token_3");
+    }
+
+
+    //-----------------------------------
+    // gameplay
+    //
+
+    #[test]
+    fn test_gameplay_offchain_ok() {
+        let mut sys: TesterSystems = tester::setup_world();
+        // mint
+        _mint_token(ref sys, OWNER());
+        let game_info: GameInfo = sys.world.read_model(1);
+        // start game
+        let game_state_0: GameState = sys.game.start_game(1);
+        assert_eq!(game_state_0.game_id, 1, "game_state_0");
+        assert_eq!(game_state_0.seed, game_info.seed, "game_state");
+        assert_eq!(game_state_0.matrix.count_beasts(), 2, "game_state_0");
+        assert_eq!(game_state_0.move_count, 0, "game_state_0");
+        assert_eq!(game_state_0.score, 0, "game_state_0");
+        assert_eq!(game_state_0.finished, false, "game_state_0");
+        // tester::print_matrix(@game_state_0.matrix, "game_state_0");
+        // move...
+        let game_state_1: GameState = sys.game.move(game_state_0, Direction::Right);
+        assert_eq!(game_state_1.game_id, 1, "game_state_1");
+        assert_ne!(game_state_1.seed, game_state_0.seed, "game_state_1");
+        assert_ge!(game_state_1.matrix.count_beasts(), 3, "game_state_1");
+        assert_eq!(game_state_1.move_count, 1, "game_state_1");
+        assert_gt!(game_state_1.score, game_state_0.score, "game_state_1");
+        assert_eq!(game_state_1.finished, false, "game_state_1");
+        // tester::print_matrix(@game_state_1.matrix, "game_state_1");
+        // move...
+        let game_state_2: GameState = sys.game.move(game_state_1, Direction::Down);
+        assert_eq!(game_state_2.game_id, 1, "game_state_2");
+        assert_ne!(game_state_2.seed, game_state_1.seed, "game_state_2");
+        assert_ge!(game_state_2.matrix.count_beasts(), 3, "game_state_2");
+        assert_eq!(game_state_2.move_count, 2, "game_state_2");
+        assert_gt!(game_state_2.score, game_state_1.score, "game_state_2");
+        assert_eq!(game_state_2.finished, false, "game_state_2");
+        // tester::print_matrix(@game_state_2.matrix, "game_state_2");
+    }
+
+    #[test]
+    fn test_gameplay_submit_ok() {
+        let mut sys: TesterSystems = tester::setup_world();
+        // mint
+        _mint_token(ref sys, OWNER());
+        let mut game_state: GameState = sys.game.start_game(1);
+        // simulate many moves
+        let moves: Array<Direction> = array![
+            Direction::Right,
+            Direction::Down,
+            Direction::Down,
+            Direction::Left,
+            Direction::Up,
+            Direction::Right,
+            Direction::Down,
+            Direction::Left,
+            Direction::Up,
+            Direction::Left,
+            Direction::Up,
+            Direction::Right,
+            Direction::Down,
+            Direction::Left,
+            Direction::Up,
+            Direction::Right,
+            Direction::Down,
+            Direction::Left,
+            Direction::Up,
+        ];
+        for move in moves.clone() {
+            game_state = sys.game.move(game_state, move);
+        }
+        tester::print_matrix(@game_state.matrix, "simulated");
+        // submit...
+        let game_state_submitted: GameState = sys.game.submit_game(1, moves);
+        tester::print_matrix(@game_state_submitted.matrix, "submitted");
+        // comapre...
+        assert_eq!(game_state_submitted.game_id, 1, "game_state_submitted");
+        assert_eq!(game_state_submitted.seed, game_state.seed, "game_state_submitted");
+        assert_eq!(game_state_submitted.matrix.count_beasts(), game_state.matrix.count_beasts(), "game_state_submitted");
+        assert_eq!(game_state_submitted.move_count, game_state.move_count, "game_state_submitted");
+        assert_eq!(game_state_submitted.score, game_state.score, "game_state_submitted");
+        assert_eq!(game_state_submitted.finished, game_state.finished, "game_state_submitted");
+    }
+
+    #[test]
+    #[should_panic(expected: ('FERAL: Invalid game','ENTRYPOINT_FAILED'))]
+    fn test_gameplay_start_invalid_game() {
+        let mut sys: TesterSystems = tester::setup_world();
+        sys.game.start_game(1);
+    }
+
+    #[test]
+    #[should_panic(expected: ('FERAL: Invalid game','ENTRYPOINT_FAILED'))]
+    fn test_gameplay_move_invalid_game() {
+        let mut sys: TesterSystems = tester::setup_world();
+        // mint
+        _mint_token(ref sys, OWNER());
+        let mut game_state: GameState = sys.game.start_game(1);
+        game_state.game_id = 2;
+        sys.game.move(game_state, Direction::Right);
+    }
+
+    #[test]
+    #[should_panic(expected: ('FERAL: Invalid direction','ENTRYPOINT_FAILED'))]
+    fn test_gameplay_move_invalid_direction() {
+        let mut sys: TesterSystems = tester::setup_world();
+        // mint
+        _mint_token(ref sys, OWNER());
+        let mut game_state: GameState = sys.game.start_game(1);
+        sys.game.move(game_state, Direction::None);
     }
 
 }

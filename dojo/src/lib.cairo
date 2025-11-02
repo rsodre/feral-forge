@@ -19,6 +19,6 @@ pub mod libs {
 }
 
 pub mod tests {
-    mod tester;
-    mod game_tests;
+    pub mod tester;
+    pub mod game_tests;
 }

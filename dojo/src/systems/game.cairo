@@ -230,7 +230,7 @@ pub mod game {
             // create new game state
             let mut game_state: GameState = world.start_game(game_id);
             // calculate score
-            game_state.calc_score();
+            // game_state.calc_score(); // start with zero!
             (game_state)
         }
 
