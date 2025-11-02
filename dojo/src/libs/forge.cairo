@@ -350,7 +350,7 @@ mod tests {
     #[test]
     fn test_merge_pair() {
         let mut seeder: Seeder = Seeder {
-            seed: 0x05fa5438c7ccbcbae63ec200779acf8b71f34f432e9f0e7adec7a74230850c6b,
+            seed: 0x00cf5e671c2cc1b13214275e72fc579c53de924545a448fd8ccc5619ad49f326,
             current: 0,
         };
         // no changes
@@ -443,7 +443,7 @@ mod tests {
     #[test]
     fn test_merge_row_shift() {
         let mut seeder: Seeder = Seeder {
-            seed: 0x05fa5438c7ccbcbae63ec200779acf8b71f34f432e9f0e7adec7a74230850c6b,
+            seed: 0x00cf5e671c2cc1b13214275e72fc579c53de924545a448fd8ccc5619ad49f326,
             current: 0,
         };
         //
@@ -512,7 +512,7 @@ mod tests {
     #[test]
     fn test_merge_row_merge() {
         let mut seeder: Seeder = Seeder {
-            seed: 0x05fa5438c7ccbcbae63ec200779acf8b71f34f432e9f0e7adec7a74230850c6b,
+            seed: 0x00cf5e671c2cc1b13214275e72fc579c53de924545a448fd8ccc5619ad49f326,
             current: 0,
         };
         //
@@ -720,7 +720,7 @@ mod tests {
     #[test]
     fn test_forge_direction_shift() {
         let mut seeder: Seeder = Seeder {
-            seed: 0x05fa5438c7ccbcbae63ec200779acf8b71f34f432e9f0e7adec7a74230850c6b,
+            seed: 0x00cf5e671c2cc1b13214275e72fc579c53de924545a448fd8ccc5619ad49f326,
             current: 0,
         };
         let m: GameMatrix = GameMatrix {
@@ -757,7 +757,7 @@ mod tests {
     #[test]
     fn test_forge_direction_merge() {
         let mut seeder: Seeder = Seeder {
-            // seed: 0x05fa5438c7ccbcbae63ec200779acf8b71f34f432e9f0e7adec7a74230850c6b,
+            // seed: 0x00cf5e671c2cc1b13214275e72fc579c53de924545a448fd8ccc5619ad49f326,
             seed: 0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfc,
             current: 0,
         };

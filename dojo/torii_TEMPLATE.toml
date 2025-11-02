@@ -1,0 +1,27 @@
+#
+# torii config for profile [$profile]
+#
+world_address = "$world_address"
+rpc = "$rpc_url"
+
+[events]
+raw = true
+
+[sql]
+historical = [
+  # "pistols-TrophyProgression",
+]
+
+# [grpc]
+# subscription_buffer_size = 10000
+
+[indexing]
+world_block = $world_block
+# blocks_chunk_size = 10240 # default: 10240
+# max_concurrent_tasks = 40
+transactions = true
+controllers = true
+pending = true
+contracts = [
+  "erc721:$game_token", # game_token
+]
