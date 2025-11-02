@@ -38,7 +38,7 @@ pub struct GameState {
     pub free_tiles: u8,
     pub move_count: u16,
     pub finished: bool,
-    pub score: u32,
+    pub score: u16,
 }
 
 

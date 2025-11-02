@@ -1,5 +1,6 @@
 use starknet::{ContractAddress};
 use dojo::world::IWorldDispatcher;
+use feral::models::game_info::{GameInfo};
 use feral::libs::gameplay::{
     Direction,
     GameState,
@@ -61,6 +62,7 @@ pub trait IGame<TState> {
     fn submit_game(ref self: TState, game_id: u128, moves: Array<Direction>) -> GameState;
     fn start_game(self: @TState, game_id: u128) -> GameState;
     fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
+    fn get_game_info(self: @TState, game_id: u128) -> GameInfo;
     // admin
     fn set_minting_paused(ref self: TState, is_paused: bool);
     fn update_token_metadata(ref self: TState, token_id: u256);
@@ -74,6 +76,7 @@ pub trait IGamePublic<TState> {
     fn submit_game(ref self: TState, game_id: u128, moves: Array<Direction>) -> GameState;
     fn start_game(self: @TState, game_id: u128) -> GameState;
     fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
+    fn get_game_info(self: @TState, game_id: u128) -> GameInfo;
     // admin
     fn set_minting_paused(ref self: TState, is_paused: bool);
     fn update_token_metadata(ref self: TState, token_id: u256);
@@ -85,11 +88,12 @@ pub trait IGamePublic<TState> {
 
 #[dojo::contract]
 pub mod game {
+    use core::num::traits::Zero;
     use starknet::ContractAddress;
     use dojo::{
         world::{WorldStorage, IWorldDispatcherTrait},
         model::{ModelStorage},
-        // event::{EventStorage},
+        event::{EventStorage},
     };
 
     //-----------------------------------
@@ -138,7 +142,7 @@ pub mod game {
     //-----------------------------------
 
     use feral::models::{
-        game_info::{GameInfo},
+        game_info::{GameInfo, GameScoredEvent},
     };
     use feral::libs::{
         metadata,
@@ -159,6 +163,7 @@ pub mod game {
         pub const INVALID_BEAST: felt252        = 'FERAL: Invalid beast';
         pub const GAME_FINISHED: felt252        = 'FERAL: Game finished';
         pub const INVALID_DIRECTION: felt252    = 'FERAL: Invalid direction';
+        pub const INVALID_MOVES: felt252        = 'FERAL: Invalid moves';
     }
 
     fn dojo_init(ref self: ContractState) {
@@ -209,6 +214,9 @@ pub mod game {
                 game_id: token_id,
                 minter_address: recipient,
                 seed,
+                top_score_address: recipient,
+                top_score_move_count: 0,
+                top_score: 0,
             });
 
             (token_id)
@@ -244,8 +252,9 @@ pub mod game {
         }
 
         fn submit_game(ref self: ContractState, game_id: u128, moves: Array<Direction>) -> GameState {
-            let world: WorldStorage = self.world_default();
+            let mut world: WorldStorage = self.world_default();
             assert(self.token_exists(game_id.into()), Errors::INVALID_GAME);
+            assert(moves.len().is_non_zero(), Errors::INVALID_MOVES);
             // make a new game
             let mut game_state: GameState = world.start_game(game_id);
             // process all moves
@@ -259,10 +268,34 @@ pub mod game {
             }
             // calculate score
             game_state.calc_score();
-            // TODO: leaderboards
-            // TODO: transfer ownership to top player
+            // check if it's a new top score
+            let mut game_info: GameInfo = world.read_model(game_id);
+            let is_new_top_score: bool = (
+                game_state.score > game_info.top_score ||
+                (game_state.score == game_info.top_score && game_state.move_count < game_info.top_score_move_count)
+            );
+            if (is_new_top_score) {
+                game_info.top_score_address = starknet::get_caller_address();
+                game_info.top_score_move_count = game_state.move_count;
+                game_info.top_score = game_state.score;
+                world.write_model(@game_info);
+            }
+            // score standard event
+            if (is_new_top_score || game_state.finished) {
+                world.emit_event(@GameScoredEvent{
+                    game_id,
+                    player_address: starknet::get_caller_address(),
+                    move_count: game_state.move_count,
+                    score: game_state.score,
+                });
+            }
             // returns the final state
             (game_state)
+        }
+
+        fn get_game_info(self: @ContractState, game_id: u128) -> GameInfo {
+            let world: WorldStorage = self.world_default();
+            (world.read_model(game_id))
         }
 
 
@@ -359,17 +392,25 @@ pub mod game {
             let mut world: WorldStorage = self.world_default();
             // attributes and metadata
             let game_id: u128 = token_id.low;
-            let token_info: GameInfo = world.read_model(game_id);
+            let game_info: GameInfo = world.read_model(game_id);
             let mut attributes: Span<Attribute> = array![
-                // Attribute {
-                //     key: "Act",
-                //     value: format!("{}", token_info.act_number),
-                // },
+                Attribute {
+                    key: "Top Score",
+                    value: format!("{}", game_info.top_score),
+                },
+                Attribute {
+                    key: "Top Score Move Count",
+                    value: format!("{}", game_info.top_score_move_count),
+                },
+                Attribute {
+                    key: "Top Score Holder",
+                    value: format!("0x{:x}", game_info.top_score_address),
+                },
             ].span();
             let mut additional_metadata: Span<Attribute> = array![
                 Attribute {
                     key: "Seed",
-                    value: format!("0x{:x}", token_info.seed),
+                    value: format!("0x{:x}", game_info.seed),
                 },
             ].span();
             // https://docs.opensea.io/docs/metadata-standards#metadata-structure

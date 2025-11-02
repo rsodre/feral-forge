@@ -19,7 +19,7 @@ mod tests {
             tester::{
                 TesterSystems,
                 IGameDispatcherTrait,
-                OWNER, OTHER,
+                OWNER, OTHER, RECIPIENT,
             },
         },
     };
@@ -99,6 +99,7 @@ mod tests {
         assert_eq!(sys.game.owner_of(1), OWNER(), "token_1");
         assert_eq!(sys.game.balance_of(OWNER()), 1, "token_1");
         let game_info_1: GameInfo = sys.world.read_model(1);
+        assert_eq!(game_info_1.minter_address, OWNER(), "token_1");
         assert_ne!(game_info_1.seed, 0, "token_1");
 
         _mint_token(ref sys, OTHER());
@@ -106,6 +107,7 @@ mod tests {
         assert_eq!(sys.game.owner_of(2), OTHER(), "token_2");
         assert_eq!(sys.game.balance_of(OTHER()), 1, "token_2");
         let game_info_2: GameInfo = sys.world.read_model(2);
+        assert_eq!(game_info_2.minter_address, OTHER(), "token_2");
         assert_ne!(game_info_2.seed, 0, "token_2");
         assert_ne!(game_info_2.seed, game_info_1.seed, "token_2");
 
@@ -114,9 +116,15 @@ mod tests {
         assert_eq!(sys.game.owner_of(3), OWNER(), "token_3");
         assert_eq!(sys.game.balance_of(OWNER()), 2, "token_3");
         let game_info_3: GameInfo = sys.world.read_model(3);
+        assert_eq!(game_info_3.minter_address, OWNER(), "token_3");
         assert_ne!(game_info_3.seed, game_info_1.seed, "token_3");
         assert_ne!(game_info_3.seed, game_info_2.seed, "token_3");
         assert_ne!(game_info_3.seed, 0, "token_3");
+
+        // test getteer
+        let got_info_1: GameInfo = sys.game.get_game_info(1);
+        assert_eq!(got_info_1.minter_address, game_info_1.minter_address, "got_info_1");
+        assert_eq!(got_info_1.seed, game_info_1.seed, "got_info_1");
     }
 
 
@@ -203,6 +211,85 @@ mod tests {
         assert_eq!(game_state_submitted.finished, game_state.finished, "game_state_submitted");
     }
 
+
+    #[test]
+    fn test_top_score() {
+        let mut sys: TesterSystems = tester::setup_world();
+        // mint
+        _mint_token(ref sys, OWNER());
+        let _game_state_0: GameState = sys.game.start_game(1);
+        //
+        // Player 1...
+        tester::impersonate(OWNER());
+        let moves: Array<Direction> = array![
+            Direction::Right,
+            Direction::Down,
+        ];
+        let game_state_1: GameState = sys.game.submit_game(1, moves);
+        assert_eq!(game_state_1.move_count, 2, "game_state_1");
+        assert_gt!(game_state_1.score, 2, "game_state_1");
+        let game_info_1: GameInfo = sys.world.read_model(1);
+        assert_eq!(game_info_1.top_score_address, OWNER(), "game_info_1");
+        assert_eq!(game_info_1.top_score_move_count, 2, "game_info_1");
+        assert_gt!(game_info_1.top_score, 2, "game_info_1");
+        //
+        // Player 2... (new top)
+        tester::impersonate(OTHER());
+        let moves: Array<Direction> = array![
+            Direction::Right,
+            Direction::Down,
+            Direction::Right,
+            Direction::Down,
+            Direction::Up,
+            Direction::Left,
+        ];
+        let game_state_2: GameState = sys.game.submit_game(1, moves);
+        assert_eq!(game_state_2.move_count, 6, "game_state_2");
+        assert_gt!(game_state_2.score, 2, "game_state_2");
+        let game_info_2: GameInfo = sys.world.read_model(1);
+        assert_eq!(game_info_2.top_score_address, OTHER(), "game_info_2");
+        assert_eq!(game_info_2.top_score_move_count, 6, "game_info_2");
+        assert_gt!(game_info_2.top_score, game_info_1.top_score, "game_info_2");
+        //
+        // Player 3... (not qualified)
+        tester::impersonate(RECIPIENT());
+        let moves: Array<Direction> = array![
+            Direction::Down,
+            Direction::Up,
+        ];
+        let game_state_3: GameState = sys.game.submit_game(1, moves);
+        assert_eq!(game_state_3.move_count, 2, "game_state_3");
+        assert_gt!(game_state_3.score, 2, "game_state_3");
+        let game_info_3: GameInfo = sys.world.read_model(1);
+        assert_eq!(game_info_3.top_score_address, game_info_2.top_score_address, "game_info_3");
+        assert_eq!(game_info_3.top_score_move_count, game_info_2.top_score_move_count, "game_info_3");
+        assert_eq!(game_info_3.top_score, game_info_2.top_score, "game_info_3");
+        //
+        // Player 1 again... (new top)
+        tester::impersonate(OWNER());
+        let moves: Array<Direction> = array![
+            Direction::Right,
+            Direction::Down,
+            Direction::Right,
+            Direction::Down,
+            Direction::Up,
+            Direction::Left,
+            Direction::Right,
+            Direction::Down,
+            Direction::Right,
+            Direction::Down,
+            Direction::Up,
+            Direction::Left,
+        ];
+        let game_state_4: GameState = sys.game.submit_game(1, moves);
+        assert_eq!(game_state_4.move_count, 12, "game_state_4");
+        assert_gt!(game_state_4.score, game_info_2.top_score, "game_state_4");
+        let game_info_4: GameInfo = sys.world.read_model(1);
+        assert_eq!(game_info_4.top_score_address, OWNER(), "game_info_4");
+        assert_eq!(game_info_4.top_score_move_count, 12, "game_info_4");
+        assert_gt!(game_info_4.top_score, game_info_2.top_score, "game_info_4");
+    }
+
     #[test]
     #[should_panic(expected: ('FERAL: Invalid game','ENTRYPOINT_FAILED'))]
     fn test_gameplay_start_invalid_game() {
@@ -229,6 +316,14 @@ mod tests {
         _mint_token(ref sys, OWNER());
         let mut game_state: GameState = sys.game.start_game(1);
         sys.game.move(game_state, Direction::None);
+    }
+
+    #[test]
+    #[should_panic(expected: ('FERAL: Invalid moves','ENTRYPOINT_FAILED'))]
+    fn test_gameplay_start_invalid_moves() {
+        let mut sys: TesterSystems = tester::setup_world();
+        _mint_token(ref sys, OWNER());
+        sys.game.submit_game(1, array![]);
     }
 
 }

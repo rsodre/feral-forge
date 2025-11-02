@@ -24,10 +24,10 @@ pub mod tester {
     }
 
     pub fn ZERO()      -> ContractAddress { 0x0.try_into().unwrap() }
-    pub fn OWNER()     -> ContractAddress { 0x1.try_into().unwrap() } // mock owner of duelists 1-2
-    pub fn OTHER()     -> ContractAddress { 0x2.try_into().unwrap() } // mock owner of duelists 3-4
-    pub fn ADMIN()     -> ContractAddress { 0x3.try_into().unwrap() } // mock owner of duelists 3-4
-    pub fn RECIPIENT() -> ContractAddress { 0x4.try_into().unwrap() }
+    pub fn OWNER()     -> ContractAddress { 0x111.try_into().unwrap() } // mock owner of duelists 1-2
+    pub fn OTHER()     -> ContractAddress { 0x222.try_into().unwrap() } // mock owner of duelists 3-4
+    pub fn ADMIN()     -> ContractAddress { 0x333.try_into().unwrap() } // mock owner of duelists 3-4
+    pub fn RECIPIENT() -> ContractAddress { 0x444.try_into().unwrap() }
 
 
     #[derive(Copy, Drop)]
@@ -41,6 +41,7 @@ pub mod tester {
             namespace: "feral",
             resources: [
                 TestResource::Model(feral::models::game_info::m_GameInfo::TEST_CLASS_HASH.into()),
+                TestResource::Event(feral::models::game_info::e_GameScoredEvent::TEST_CLASS_HASH.into()),
                 TestResource::Contract(feral::systems::game::game::TEST_CLASS_HASH.into()),
             ].span(),
         };

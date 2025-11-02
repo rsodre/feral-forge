@@ -35,7 +35,7 @@ pub impl BeastImpl of BeastTrait {
         (b)
     }
 
-    fn get_score(self: u8) -> u32 {
+    fn get_score(self: u8) -> u16 {
         let tier: u8 = Self::to_tier_shiny(self);
         if      (tier == T5) {(1)}
         else if (tier == T4) {(3)}
