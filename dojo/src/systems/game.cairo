@@ -20,12 +20,12 @@ pub trait IGame<TState> {
     // (IERC721)
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn owner_of(self: @TState, token_id: u256) -> ContractAddress;
-    fn safe_transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>);
-    fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
-    fn approve(ref self: TState, to: ContractAddress, token_id: u256);
-    fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
-    fn get_approved(self: @TState, token_id: u256) -> ContractAddress;
-    fn is_approved_for_all(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
+    // fn safe_transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>);
+    // fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
+    // fn approve(ref self: TState, to: ContractAddress, token_id: u256);
+    // fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
+    // fn get_approved(self: @TState, token_id: u256) -> ContractAddress;
+    // fn is_approved_for_all(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
     // (IERC721Metadata)
     fn name(self: @TState) -> ByteArray;
     fn symbol(self: @TState) -> ByteArray;
@@ -164,6 +164,7 @@ pub mod game {
         pub const GAME_FINISHED: felt252        = 'FERAL: Game finished';
         pub const INVALID_DIRECTION: felt252    = 'FERAL: Invalid direction';
         pub const INVALID_MOVES: felt252        = 'FERAL: Invalid moves';
+        pub const INVALID_TRANSFER: felt252     = 'FERAL: Transfer by scoring';
     }
 
     fn dojo_init(ref self: ContractState) {
@@ -203,15 +204,18 @@ pub mod game {
             let mut world: WorldStorage = self.world_default();
 
             // mint
-            let token_id: u128 = self.erc721_combo._mint_next(recipient).low;
+            let token_id: u256 = self.erc721_combo._mint_next(recipient);
 
-            // generate seed
+            // authorize this contract to transfer the token
             let contract_address: ContractAddress = starknet::get_contract_address();
-            let seed: felt252 = make_seed(contract_address, token_id);
+
+            // TODO: use VRF
+            // generate seed
+            let seed: felt252 = make_seed(contract_address, token_id.low);
 
             // save token
             world.write_model(@GameInfo {
-                game_id: token_id,
+                game_id: token_id.low,
                 minter_address: recipient,
                 seed,
                 top_score_address: recipient,
@@ -219,7 +223,7 @@ pub mod game {
                 top_score: 0,
             });
 
-            (token_id)
+            (token_id.low)
         }
 
         // fn burn(ref self: ContractState, token_id: u256) {
@@ -274,17 +278,25 @@ pub mod game {
                 game_state.score > game_info.top_score ||
                 (game_state.score == game_info.top_score && game_state.move_count < game_info.top_score_move_count)
             );
+            // update top score
+            let caller: ContractAddress = starknet::get_caller_address();
             if (is_new_top_score) {
-                game_info.top_score_address = starknet::get_caller_address();
+                game_info.top_score_address = caller;
                 game_info.top_score_move_count = game_state.move_count;
                 game_info.top_score = game_state.score;
                 world.write_model(@game_info);
+                // transfer token to new top score holder
+                let owner: ContractAddress = self.owner_of(game_id.into());
+                if (owner != caller) {
+                    self.erc721._approve(caller, game_id.into(), 0x0.try_into().unwrap());
+                    self.erc721_combo.transfer_from(owner, caller, game_id.into());
+                }
             }
-            // score standard event
+            // standard scoring event
             if (is_new_top_score || game_state.finished) {
                 world.emit_event(@GameScoredEvent{
                     game_id,
-                    player_address: starknet::get_caller_address(),
+                    player_address: caller,
                     move_count: game_state.move_count,
                     score: game_state.score,
                 });
@@ -372,6 +384,14 @@ pub mod game {
     // ERC721ComboHooksTrait
     //
     pub impl ERC721ComboHooksImpl of ERC721ComboComponent::ERC721ComboHooksTrait<ContractState> {
+        fn before_update(ref self: ERC721ComboComponent::ComponentState<ContractState>, to: ContractAddress, token_id: u256, auth: ContractAddress) {
+            let mut self = self.get_contract_mut();
+            let mut erc721 = ERC721Component::HasComponent::get_component_mut(ref self);
+            let from: ContractAddress = erc721._owner_of(token_id);
+            if (from.is_non_zero()) {
+                assert(starknet::get_caller_address() != from, Errors::INVALID_TRANSFER);
+            }
+        }
         fn render_contract_uri(self: @ERC721ComboComponent::ComponentState<ContractState>) -> Option<ContractMetadata> {
             // https://docs.opensea.io/docs/contract-level-metadata
             let metadata: ContractMetadata = ContractMetadata {

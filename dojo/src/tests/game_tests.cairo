@@ -232,6 +232,8 @@ mod tests {
         assert_eq!(game_info_1.top_score_address, OWNER(), "game_info_1");
         assert_eq!(game_info_1.top_score_move_count, 2, "game_info_1");
         assert_gt!(game_info_1.top_score, 2, "game_info_1");
+        // ownership
+        assert_eq!(sys.game.owner_of(1), OWNER(), "game_info_1");
         //
         // Player 2... (new top)
         tester::impersonate(OTHER());
@@ -250,6 +252,8 @@ mod tests {
         assert_eq!(game_info_2.top_score_address, OTHER(), "game_info_2");
         assert_eq!(game_info_2.top_score_move_count, 6, "game_info_2");
         assert_gt!(game_info_2.top_score, game_info_1.top_score, "game_info_2");
+        // transferred to new top player!!!!
+        assert_eq!(sys.game.owner_of(1), OTHER(), "game_info_2");
         //
         // Player 3... (not qualified)
         tester::impersonate(RECIPIENT());
@@ -264,6 +268,8 @@ mod tests {
         assert_eq!(game_info_3.top_score_address, game_info_2.top_score_address, "game_info_3");
         assert_eq!(game_info_3.top_score_move_count, game_info_2.top_score_move_count, "game_info_3");
         assert_eq!(game_info_3.top_score, game_info_2.top_score, "game_info_3");
+        // ownership
+        assert_eq!(sys.game.owner_of(1), OTHER(), "game_info_2");
         //
         // Player 1 again... (new top)
         tester::impersonate(OWNER());
@@ -288,6 +294,38 @@ mod tests {
         assert_eq!(game_info_4.top_score_address, OWNER(), "game_info_4");
         assert_eq!(game_info_4.top_score_move_count, 12, "game_info_4");
         assert_gt!(game_info_4.top_score, game_info_2.top_score, "game_info_4");
+        // ownership
+        assert_eq!(sys.game.owner_of(1), OWNER(), "game_info_4");
+        //
+        // another player...
+        tester::impersonate(RECIPIENT());
+        let moves: Array<Direction> = array![
+            Direction::Right,
+            Direction::Down,
+            Direction::Right,
+            Direction::Down,
+            Direction::Up,
+            Direction::Left,
+            Direction::Right,
+            Direction::Down,
+            Direction::Right,
+            Direction::Down,
+            Direction::Up,
+            Direction::Left,
+            Direction::Right,
+            Direction::Down,
+            Direction::Up,
+            Direction::Left,
+        ];
+        let game_state_5: GameState = sys.game.submit_game(1, moves);
+        assert_eq!(game_state_5.move_count, 16, "game_state_5");
+        assert_gt!(game_state_5.score, game_info_4.top_score, "game_state_5");
+        let game_info_5: GameInfo = sys.world.read_model(1);
+        assert_eq!(game_info_5.top_score_address, RECIPIENT(), "game_info_5");
+        assert_eq!(game_info_5.top_score_move_count, 16, "game_state_5");
+        assert_gt!(game_info_5.top_score, game_info_4.top_score, "game_state_5");
+        // ownership
+        assert_eq!(sys.game.owner_of(1), RECIPIENT(), "game_state_5");
     }
 
     #[test]
