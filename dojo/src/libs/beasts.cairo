@@ -28,11 +28,26 @@ pub impl BeastImpl of BeastTrait {
     #[inline(always)]
     fn randomize_beast_of_tier(tier: u8, ref seeder: Seeder) -> u8 {
         let r: u8 = seeder.get_next_u8(15);
-        let bhm = ((r / 5) * 25);   // type
-        let t = ((tier - 1) * 5);   // tier offset
-        let i = ((r % 5) + 1);      // index
+        let bhm: u8 = ((r / 5) * 25);   // type
+        let t: u8 = ((tier - 1) * 5);   // tier offset
+        let i: u8 = ((r % 5) + 1);      // index
         let b: u8 = (bhm + t + i);
         (b)
+    }
+
+    fn get_score(self: u8) -> u32 {
+        let tier: u8 = Self::to_tier_shiny(self);
+        if      (tier == T5) {(1)}
+        else if (tier == T4) {(3)}
+        else if (tier == T3) {(10)}
+        else if (tier == T2) {(30)}
+        else if (tier == T1) {(100)}
+        else if (tier == S5) {(50)}
+        else if (tier == S4) {(100)}
+        else if (tier == S3) {(150)}
+        else if (tier == S2) {(200)}
+        else if (tier == S1) {(250)}
+        else {(0)}
     }
 
     //---------------------------------------

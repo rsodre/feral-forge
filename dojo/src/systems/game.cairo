@@ -1,5 +1,10 @@
 use starknet::{ContractAddress};
 use dojo::world::IWorldDispatcher;
+use feral::libs::gameplay::{
+    Direction,
+    GameState,
+};
+
 
 #[starknet::interface]
 pub trait IGame<TState> {
@@ -53,7 +58,10 @@ pub trait IGame<TState> {
 
     // game
     fn mint_game(ref self: TState, recipient: ContractAddress) -> u128;
-    // fn burn(ref self: TState, token_id: u256);
+    fn submit_game(ref self: TState, game_id: u128, moves: Array<Direction>) -> GameState;
+    fn start_game(self: @TState, game_id: u128) -> GameState;
+    fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
+    // admin
     fn set_minting_paused(ref self: TState, is_paused: bool);
     fn update_token_metadata(ref self: TState, token_id: u256);
     fn update_tokens_metadata(ref self: TState, from_token_id: u256, to_token_id: u256);
@@ -63,13 +71,16 @@ pub trait IGame<TState> {
 #[starknet::interface]
 pub trait IGamePublic<TState> {
     fn mint_game(ref self: TState, recipient: ContractAddress) -> u128;
-    // fn burn(ref self: TState, token_id: u256);
+    fn submit_game(ref self: TState, game_id: u128, moves: Array<Direction>) -> GameState;
+    fn start_game(self: @TState, game_id: u128) -> GameState;
+    fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
     // admin
     fn set_minting_paused(ref self: TState, is_paused: bool);
     fn update_token_metadata(ref self: TState, token_id: u256);
     fn update_tokens_metadata(ref self: TState, from_token_id: u256, to_token_id: u256);
     fn update_contract_metadata(ref self: TState);
     // fn create_trophies(ref self: TState);
+    // fn burn(ref self: TState, token_id: u256);
 }
 
 #[dojo::contract]
@@ -133,11 +144,21 @@ pub mod game {
         metadata,
         hash::{make_seed},
         dns::{SELECTORS},
+        gameplay::{
+            GameState,
+            GameplayTrait,
+            Direction,
+        },
     };
     use nft_combo::utils::renderer::{Attribute};
 
-    mod Errors {
-        pub const INVALID_CALLER: felt252   = 'FERAL: Invalid caller';
+    pub mod Errors {
+        pub const INVALID_CALLER: felt252       = 'FERAL: Invalid caller';
+        pub const INVALID_GAME: felt252         = 'FERAL: Invalid game';
+        pub const INVALID_TILE: felt252         = 'FERAL: Invalid tile';
+        pub const INVALID_BEAST: felt252        = 'FERAL: Invalid beast';
+        pub const GAME_FINISHED: felt252        = 'FERAL: Game finished';
+        pub const INVALID_DIRECTION: felt252    = 'FERAL: Invalid direction';
     }
 
     fn dojo_init(ref self: ContractState) {
@@ -169,6 +190,10 @@ pub mod game {
     //
     #[abi(embed_v0)]
     impl GameTokenPublicImpl of super::IGamePublic<ContractState> {
+
+        //-----------------------------------
+        // minting
+        //
         fn mint_game(ref self: ContractState, recipient: ContractAddress) -> u128 {
             let mut world: WorldStorage = self.world_default();
 
@@ -181,7 +206,7 @@ pub mod game {
 
             // save token
             world.write_model(@GameInfo {
-                token_id,
+                game_id: token_id,
                 minter_address: recipient,
                 seed,
             });
@@ -194,7 +219,54 @@ pub mod game {
         //     self.erc721_combo._burn(token_id);
         // }
 
+        //-----------------------------------
+        // gameplay
         //
+
+        // off-chain play
+        fn start_game(self: @ContractState, game_id: u128) -> GameState {
+            let world: WorldStorage = self.world_default();
+            assert(self.token_exists(game_id.into()), Errors::INVALID_GAME);
+            // create new game state
+            let mut game_state: GameState = world.start_game(game_id);
+            // calculate score
+            game_state.calc_score();
+            (game_state)
+        }
+
+        fn move(self: @ContractState, mut game_state: GameState, direction: Direction) -> GameState {
+            assert(self.token_exists(game_state.game_id.into()), Errors::INVALID_GAME);
+            // create new game state
+            game_state.move(direction);
+            // calculate score
+            game_state.calc_score();
+            (game_state)
+        }
+
+        fn submit_game(ref self: ContractState, game_id: u128, moves: Array<Direction>) -> GameState {
+            let world: WorldStorage = self.world_default();
+            assert(self.token_exists(game_id.into()), Errors::INVALID_GAME);
+            // make a new game
+            let mut game_state: GameState = world.start_game(game_id);
+            // process all moves
+            for i in 0..moves.len() {
+                let direction: Direction = *moves[i];
+                game_state.move(direction);
+                // early exit if the game is finished
+                if (game_state.finished) {
+                    break;
+                }
+            }
+            // calculate score
+            game_state.calc_score();
+            // TODO: leaderboards
+            // TODO: transfer ownership to top player
+            // returns the final state
+            (game_state)
+        }
+
+
+        //-----------------------------------
         // admin
         //
         fn set_minting_paused(ref self: ContractState, is_paused: bool) {

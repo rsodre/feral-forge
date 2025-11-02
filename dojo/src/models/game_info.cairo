@@ -5,7 +5,7 @@ use starknet::ContractAddress;
 #[dojo::model]
 pub struct GameInfo {
     #[key]
-    pub token_id: u128,
+    pub game_id: u128,
     //-----------------------------------
     pub minter_address: ContractAddress,
     pub seed: felt252,
