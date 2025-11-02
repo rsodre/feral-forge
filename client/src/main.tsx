@@ -7,7 +7,7 @@ import { Theme, ThemePanel } from '@radix-ui/themes';
 import { DojoSdkProvider } from "@dojoengine/sdk/react";
 import { setupWorld } from "./generated/contracts.gen.ts";
 import { dojoConfig, createDojoSdk } from "./dojo/dojoConfig.ts";
-import StarknetProvider from "./dojo/starknet-provider.tsx";
+import StarknetProvider from "./dojo/StarknetProvider.tsx";
 import MintTestPage from './pages/tests/MintTestPage.tsx';
 import ErrorPage from './pages/ErrorPage.tsx';
 import MainPage from './pages/MainPage.tsx';

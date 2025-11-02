@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Flex, Button, Heading, Separator } from '@radix-ui/themes'
 import { useAccount } from '@starknet-react/core';
+import { ConnectButton } from '../components/Buttons';
 import App from '../components/App';
 
 export default function MainPage() {
@@ -9,6 +10,10 @@ export default function MainPage() {
   const _play = useCallback(() => {
     window.location.href = '/play';
   }, []);
+  const _help = useCallback(() => {
+    window.location.href = '/help';
+  }, []);
+
   return (
     <App bg='home'>
       <Flex
@@ -32,9 +37,9 @@ export default function MainPage() {
 
           <Separator my="4" style={{ opacity: 0 }} />
 
-          <Button size="3" onClick={_play} disabled={isConnected}>Connect</Button>
           <Button size="3" onClick={_play} disabled={!isConnected}>Play Now</Button>
-          <Button size="3" onClick={_play}>How to Play</Button>
+          <ConnectButton /> 
+          <Button size="3" onClick={_help}>How to Play</Button>
         </Flex>
       </Flex>
     </App>
