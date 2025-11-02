@@ -9,6 +9,7 @@ import { setupWorld } from "./generated/contracts.gen.ts";
 import { dojoConfig, createDojoSdk } from "./dojo/dojoConfig.ts";
 import StarknetProvider from "./dojo/StarknetProvider.tsx";
 import MintTestPage from './pages/tests/MintTestPage.tsx';
+import BeastsTestPage from './pages/tests/BeastsTestPage.tsx';
 import ErrorPage from './pages/ErrorPage.tsx';
 import MainPage from './pages/MainPage.tsx';
 
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
     path: '/tests',
     children: [
       { path: "mint", element: <MintTestPage /> },
+      { path: "beasts", element: <BeastsTestPage /> },
     ],
   },
 ]);
