@@ -1,7 +1,7 @@
 # Feral Forge
 A Beast Crushing Game for [Dojo Game Jam VII](https://github.com/dojoengine/game-jams)
 
-> In the depths of Death Mountain lies the Feral Forge, a vicious playground where feral beasts get forged for battle!
+> In the depths of Death Mountain lies the Feral Forge, a vicious playground where newborn beasts get prepared to rise for battle!
 
 ## Resources
 

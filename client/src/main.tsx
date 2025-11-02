@@ -1,5 +1,5 @@
 import '@radix-ui/themes/styles.css';
-import './global.css'
+import './styles/global.css'
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router'
@@ -8,7 +8,7 @@ import { DojoSdkProvider } from "@dojoengine/sdk/react";
 import { setupWorld } from "./generated/contracts.gen.ts";
 import { dojoConfig, createDojoSdk } from "./dojo/dojoConfig.ts";
 import StarknetProvider from "./dojo/starknet-provider.tsx";
-import TestsMintPage from './pages/TestsMintPage.tsx';
+import MintTestPage from './pages/tests/MintTestPage.tsx';
 import ErrorPage from './pages/ErrorPage.tsx';
 import MainPage from './pages/MainPage.tsx';
 
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
   {
     path: '/tests',
     children: [
-      { path: "mint", element: <TestsMintPage /> },
+      { path: "mint", element: <MintTestPage /> },
     ],
   },
 ]);

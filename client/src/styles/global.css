@@ -1,0 +1,139 @@
+@import './fonts/cinzel.css';
+@import './fonts/roboto_mono.css';
+
+:root {
+  --my-font-family: 'Cinzel';
+  --my-mono-font-family: 'Roboto Mono';
+  --my-background-color: #0d0704;
+  /* Byrne palette */
+  --cc-yellow: #fac32b;
+  --cc-orange: #e57e27;
+  --cc-red: #d62a20;
+  --cc-blue: #10638f;
+  --cc-green: #108f30;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  /* font-variant-caps: small-caps!important; */
+}
+
+a {
+  color: var(--gray-10);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--gray-11);
+  text-decoration: underline;
+}
+
+.Anchor {
+  color: var(--accent-11);
+  text-decoration: none;
+}
+.Anchor:hover {
+  color: var(--accent-11);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-11);
+}
+
+h1 {
+  text-shadow: 0.1rem 0.1rem 10px rgba(0,0,0,0.5);
+}
+
+.FillParent {
+  width: 100%;
+  height: 100%;
+}
+.AboveAll {
+  z-index: 1001;
+  pointer-events: all;
+}
+
+.Accent1 { color: var(--accent-1); }
+.Accent2 { color: var(--accent-2); }
+.Accent3 { color: var(--accent-3); }
+.Accent4 { color: var(--accent-4); }
+.Accent5 { color: var(--accent-5); }
+.Accent6 { color: var(--accent-6); }
+.Accent7 { color: var(--accent-7); }
+.Accent8 { color: var(--accent-8); }
+.Accent9 { color: var(--accent-9); }
+.Accent10 { color: var(--accent-10); }
+.Accent11 { color: var(--accent-11); }
+.Accent12 { color: var(--accent-12); }
+
+.Gray1 { color: var(--gray-1); }
+.Gray2 { color: var(--gray-2); }
+.Gray3 { color: var(--gray-3); }
+.Gray4 { color: var(--gray-4); }
+.Gray5 { color: var(--gray-5); }
+.Gray6 { color: var(--gray-6); }
+.Gray7 { color: var(--gray-7); }
+.Gray8 { color: var(--gray-8); }
+.Gray9 { color: var(--gray-9); }
+.Gray10 { color: var(--gray-10); }
+.Gray12 { color: var(--gray-12); }
+
+.BgGray1 { background-color: var(--gray-1); }
+.BgGray2 { background-color: var(--gray-2); }
+.BgGray3 { background-color: var(--gray-3); }
+.BgGray4 { background-color: var(--gray-4); }
+.BgGray5 { background-color: var(--gray-5); }
+.BgGray6 { background-color: var(--gray-6); }
+.BgGray7 { background-color: var(--gray-7); }
+.BgGray8 { background-color: var(--gray-8); }
+.BgGray9 { background-color: var(--gray-9); }
+.BgGray10 { background-color: var(--gray-10); }
+.BgGray12 { background-color: var(--gray-12); }
+
+.radix-themes {
+  /* https://www.radix-ui.com/themes/docs/theme/typography#custom-fonts */
+  --default-font-family: var(--my-font-family);
+  --heading-font-family: var(--my-font-family);
+  --code-font-family: var(--my-mono-font-family);
+  --strong-font-family: var(--my-font-family);
+  --em-font-family: var(--my-font-family);
+  --quote-font-family: var(--my-font-family);
+
+  --color-background: var(--my-background-color);
+
+  /* <Em>*/
+  --em-font-size-adjust: 1.0;
+  --em-font-style: none;
+  --em-font-weight: 500;
+  .rt-Em {
+    color: var(--accent-11);
+  }
+
+  /* cursors https://www.radix-ui.com/themes/docs/theme/cursors#customization */
+  --cursor-button: pointer;
+}
+
+
+.AppHome, .AppGame {
+  width: 100vw;
+  height: 100vh;
+  border: 0;
+  padding: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.AppHome {
+  background-image: url('/images/bg0.svg');
+  background-position: center;
+  animation: bg-animate 250s infinite;
+  /* animation-timing-function: linear; */
+}
+.AppGame {
+  background-image: url('/images/bg1.jpg');
+}
+@keyframes bg-animate {
+  0% {background-position: center;}
+  25% {background-position: top left;}
+  50% {background-position: center;}
+  75% {background-position: top right;}
+}
