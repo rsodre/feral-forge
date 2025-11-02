@@ -3,7 +3,7 @@ use dojo::model::ModelStorage;
 use feral::systems::game::game::{Errors as GameErrors};
 use feral::models::game_info::GameInfo;
 use feral::libs::rng::{Seeder, SeederTrait};
-use feral::libs::merge::{MergeTrait};
+use feral::libs::forge::{ForgeTrait};
 use feral::libs::beasts::{BeastTrait};
 use feral::libs::constants::{TIER};
 
@@ -89,7 +89,7 @@ pub impl GameplayImpl of GameplayTrait {
         let mut seeder: Seeder = self.make_seeder();
         seeder.rehash();
         // move!
-        self.free_tiles = self.matrix.merge_matrix(direction, true, ref seeder);
+        self.free_tiles = self.matrix.forge_direction(direction, true, ref seeder);
         self.finished = (self.free_tiles == 0);
     }
 

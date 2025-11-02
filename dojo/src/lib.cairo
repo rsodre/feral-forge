@@ -11,7 +11,7 @@ pub mod libs {
     pub mod metadata;
     pub mod gameplay;
     pub mod beasts;
-    pub mod merge;
+    pub mod forge;
     pub mod dns;
     // misc
     pub mod hash;

@@ -15,8 +15,14 @@ use feral::libs::{
 };
 
 #[generate_trait]
-pub impl MergeImpl of MergeTrait {
+pub impl ForgeImpl of ForgeTrait {
 
+    //
+    // Set a tile in the game matrix
+    /// (used to initialize the game matrix)
+    //
+    // @param: tile_index the index of the tile to set
+    // @param: beast_id the beast_id to set
     fn set_tile(ref self: GameMatrix, tile_index: u8, beast_id: u8) {
         assert(tile_index < 16, GameErrors::INVALID_TILE);
         assert(beast_id == 0 || BeastTrait::is_beast(beast_id), GameErrors::INVALID_BEAST);
@@ -41,7 +47,15 @@ pub impl MergeImpl of MergeTrait {
         }
     }
 
-    fn merge_matrix(ref self: GameMatrix, dir: Direction, spawn_new_tile: bool, ref seeder: Seeder) -> u8 {
+    //
+    // Core game loop -- one player move
+    // process the game matrix in a direction
+    //
+    // @param: dir the direction to forge
+    // @param: spawn_new_tile if true, spawn a new tile if there are free tiles
+    // @param: seeder the seeder to use
+    // @returns: the number of freed tiles
+    fn forge_direction(ref self: GameMatrix, dir: Direction, spawn_new_tile: bool, ref seeder: Seeder) -> u8 {
         let mut f_1: u8 = 0;
         let mut f_2: u8 = 0;
         let mut f_3: u8 = 0;
@@ -296,7 +310,7 @@ mod tests {
 
     fn _assert_pair_same(i1: u8, i2: u8, o1: u8, o2: u8, merged: bool, ref seeder: Seeder) {
         let prefix: ByteArray = format!("({},{}) -> ({},{})", i1, i2, o1, o2);
-        let (r1, r2, _, m): (u8, u8, u8, bool) = MergeTrait::_merge_pair(i1, i2, ref seeder);
+        let (r1, r2, _, m): (u8, u8, u8, bool) = ForgeTrait::_merge_pair(i1, i2, ref seeder);
         assert_eq!(r1, o1, "_assert_pair_same[{}] r1", prefix);
         assert_eq!(r2, o2, "_assert_pair_same[{}] r2", prefix);
         assert_eq!(merged, m, "_assert_pair_same[{}] merged", prefix);
@@ -305,7 +319,7 @@ mod tests {
         let t1: u8 = BeastTrait::to_tier(i1);
         let t2: u8 = BeastTrait::to_tier(i2);
         let prefix: ByteArray = format!("({}:{},{}:{}) -> ({})", i1, t1, i2, t2, ot);
-        let (r1, r2, _, merged): (u8, u8, u8, bool) = MergeTrait::_merge_pair(i1, i2, ref seeder);
+        let (r1, r2, _, merged): (u8, u8, u8, bool) = ForgeTrait::_merge_pair(i1, i2, ref seeder);
         let rt1: u8 = BeastTrait::to_tier(r1);
         assert_eq!(rt1, ot, "_assert_pair_merge[{}] r1({})", prefix, r1);
         assert_eq!(r2, 0, "_assert_pair_merge[{}] r2 == 0", prefix);
@@ -387,7 +401,7 @@ mod tests {
         let to4: u8 = BeastTrait::to_tier_shiny(o4);
         let prefix: ByteArray = format!("({}:{},{}:{},{}:{},{}:{}) -> ({}:{},{}:{},{}:{},{}:{})", i1, ti1, i2, ti2, i3, ti3, i4, ti4, o1, to1, o2, to2, o3, to3, o4, to4);
         let mut f: u8 = 0;
-        MergeTrait::_merge_row(ref i1, ref i2, ref i3, ref i4, ref f, ref seeder);
+        ForgeTrait::_merge_row(ref i1, ref i2, ref i3, ref i4, ref f, ref seeder);
         assert_eq!(i1, o1, "_assert_row_shift[{}] i1", prefix);
         assert_eq!(i2, o2, "_assert_row_shift[{}] i2", prefix);
         assert_eq!(i3, o3, "_assert_row_shift[{}] i3", prefix);
@@ -405,7 +419,7 @@ mod tests {
         let ti4: u8 = BeastTrait::to_tier_shiny(i4);
         let prefix: ByteArray = format!("({}:{},{}:{},{}:{},{}:{}) -> ({},{},{},{})", i1, ti1, i2, ti2, i3, ti3, i4, ti4, to1, to2, to3, to4);
         let mut f: u8 = 0;
-        MergeTrait::_merge_row(ref i1, ref i2, ref i3, ref i4, ref f, ref seeder);
+        ForgeTrait::_merge_row(ref i1, ref i2, ref i3, ref i4, ref f, ref seeder);
         let ti1: u8 = BeastTrait::to_tier_shiny(i1);
         let ti2: u8 = BeastTrait::to_tier_shiny(i2);
         let ti3: u8 = BeastTrait::to_tier_shiny(i3);
@@ -649,7 +663,7 @@ mod tests {
 
     fn _assert_matrix_shift(mi: GameMatrix, mo: GameMatrix, dir: Direction, ref seeder: Seeder, prefix: ByteArray) {
         let mut m: GameMatrix = mi;
-        let free: u8 = MergeTrait::merge_matrix(ref m, dir, false, ref seeder);
+        let free: u8 = ForgeTrait::forge_direction(ref m, dir, false, ref seeder);
         assert_eq!(m.b_1_1, mo.b_1_1, "_assert_matrix_shift[{}]", prefix);
         assert_eq!(m.b_1_2, mo.b_1_2, "_assert_matrix_shift[{}]", prefix);
         assert_eq!(m.b_1_3, mo.b_1_3, "_assert_matrix_shift[{}]", prefix);
@@ -672,7 +686,7 @@ mod tests {
 
     fn _assert_matrix_merge(mi: GameMatrix, to: GameMatrix, dir: Direction, ref seeder: Seeder, prefix: ByteArray) -> GameMatrix {
         let mut m: GameMatrix = mi;
-        let free: u8 = MergeTrait::merge_matrix(ref m, dir, false, ref seeder);
+        let free: u8 = ForgeTrait::forge_direction(ref m, dir, false, ref seeder);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_1_1), to.b_1_1, "_assert_matrix_merge[{}] ({})", prefix, m.b_1_1);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_1_2), to.b_1_2, "_assert_matrix_merge[{}] ({})", prefix, m.b_1_2);
         assert_eq!(BeastTrait::to_tier_shiny(m.b_1_3), to.b_1_3, "_assert_matrix_merge[{}] ({})", prefix, m.b_1_3);
@@ -695,7 +709,7 @@ mod tests {
     }
 
     #[test]
-    fn test_merge_matrix_shift() {
+    fn test_forge_direction_shift() {
         let mut seeder: Seeder = Seeder {
             seed: 0x05fa5438c7ccbcbae63ec200779acf8b71f34f432e9f0e7adec7a74230850c6b,
             current: 0,
@@ -732,7 +746,7 @@ mod tests {
     }
 
     #[test]
-    fn test_merge_matrix_merge() {
+    fn test_forge_direction_merge() {
         let mut seeder: Seeder = Seeder {
             // seed: 0x05fa5438c7ccbcbae63ec200779acf8b71f34f432e9f0e7adec7a74230850c6b,
             seed: 0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfc,
@@ -777,7 +791,7 @@ mod tests {
 
 
     #[test]
-    fn test_merge_matrix_spawn() {
+    fn test_forge_direction_spawn() {
         let mut seeder: Seeder = Seeder {
             seed: 0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfc,
             current: 0,
@@ -792,13 +806,13 @@ mod tests {
             // b_4_1: B02, b_4_2: B11, b_4_3: B02, b_4_4: B11,
         };
         assert_eq!(_count_free_matrix(m), 4, "Up");
-        MergeTrait::merge_matrix(ref m, Direction::Up, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Up, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 3, "Up");
-        MergeTrait::merge_matrix(ref m, Direction::Up, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Up, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 2, "Up");
-        MergeTrait::merge_matrix(ref m, Direction::Up, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Up, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 1, "Up");
-        MergeTrait::merge_matrix(ref m, Direction::Up, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Up, true, ref seeder);
 // _print_matrix(m, "Up");
         assert_eq!(_count_free_matrix(m), 0, "Up");
         //
@@ -812,13 +826,13 @@ mod tests {
         };
         seeder.rehash(); // boost RNG
         assert_eq!(_count_free_matrix(m), 4, "Down");
-        MergeTrait::merge_matrix(ref m, Direction::Down, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Down, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 3, "Down");
-        MergeTrait::merge_matrix(ref m, Direction::Down, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Down, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 2, "Down");
-        MergeTrait::merge_matrix(ref m, Direction::Down, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Down, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 1, "Down");
-        MergeTrait::merge_matrix(ref m, Direction::Down, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Down, true, ref seeder);
 // _print_matrix(m, "Down");
         assert_eq!(_count_free_matrix(m), 0, "Down");
         //
@@ -831,13 +845,13 @@ mod tests {
         };
         seeder.rehash(); // boost RNG
         assert_eq!(_count_free_matrix(m), 4, "Right");
-        MergeTrait::merge_matrix(ref m, Direction::Right, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Right, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 3, "Right");
-        MergeTrait::merge_matrix(ref m, Direction::Right, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Right, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 2, "Right");
-        MergeTrait::merge_matrix(ref m, Direction::Right, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Right, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 1, "Right");
-        MergeTrait::merge_matrix(ref m, Direction::Right, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Right, true, ref seeder);
 // _print_matrix(m, "Right");
         assert_eq!(_count_free_matrix(m), 0, "Right");
         //
@@ -850,13 +864,13 @@ mod tests {
         };
         seeder.rehash(); // boost RNG
         assert_eq!(_count_free_matrix(m), 4, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 3, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 2, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
         assert_eq!(_count_free_matrix(m), 1, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
 // _print_matrix(m, "Left");
         assert_eq!(_count_free_matrix(m), 0, "Left");
     }
@@ -864,7 +878,7 @@ mod tests {
 
     #[test]
     #[ignore]
-    fn test_merge_matrix_spawn_simulate() {
+    fn test_forge_direction_spawn_simulate() {
         let mut seeder: Seeder = Seeder {
             seed: 0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfc,
             current: 0,
@@ -877,21 +891,21 @@ mod tests {
         };
         seeder.rehash(); // boost RNG
 _print_matrix(m, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
 _print_matrix(m, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
 _print_matrix(m, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
 _print_matrix(m, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
 _print_matrix(m, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
 _print_matrix(m, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
 _print_matrix(m, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
 _print_matrix(m, "Left");
-        MergeTrait::merge_matrix(ref m, Direction::Left, true, ref seeder);
+        ForgeTrait::forge_direction(ref m, Direction::Left, true, ref seeder);
     }
 
     fn _print_matrix(m: GameMatrix, prefix: ByteArray) {
