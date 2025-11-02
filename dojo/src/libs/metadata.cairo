@@ -2,8 +2,8 @@
 pub fn TOKEN_NAME() -> ByteArray {"Feral Forge Game"}
 pub fn TOKEN_SYMBOL() -> ByteArray {"FERAL"}
 
-pub fn DESCRIPTION() -> ByteArray {"The place where feral beasts get forged for battle!"}
-pub fn EXTERNAL_LINK() -> ByteArray {"https://feral.underware.gg"}
+pub fn DESCRIPTION() -> ByteArray {"In the depths of Death Mountain lies the Feral Forge, a vicious playground where feral beasts get forged for battle!"}
+pub fn EXTERNAL_LINK() -> ByteArray {"https://feral.beta.underware.gg"}
 pub fn BACKGROUND_COLOR() -> ByteArray {"000000"}
 
 // images
