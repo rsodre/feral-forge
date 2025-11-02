@@ -1,11 +1,13 @@
+import { Chain, mainnet, NativeCurrency, sepolia } from "@starknet-react/chains";
 import { createDojoConfig, KATANA_ETH_CONTRACT_ADDRESS } from "@dojoengine/core";
 import { init, SDK } from "@dojoengine/sdk";
 import { type SchemaType } from "../generated/models.gen.ts";
-import manifest_dev from "../generated/manifest_dev.json";
 import { stringToFelt } from "../utils/starknet.ts";
-import { Chain, mainnet, NativeCurrency, sepolia } from "@starknet-react/chains";
+import manifest_dev from "../generated/manifest_dev.json";
+import manifest_sepolia from "../generated/manifest_sepolia.json";
+// import manifest_mainnet from "../generated/manifest_mainnet.json";
 
-const PROFILE = 'dev';
+const PROFILE = 'sepolia';
 
 const ETH_KATANA: NativeCurrency = {
   address: KATANA_ETH_CONTRACT_ADDRESS,
@@ -51,19 +53,19 @@ const profiles: Record<string, ProfileConfig> = {
     rpcUrl: katanaRpcUrl,
     slotName: undefined,
   },
+  sepolia: {
+    manifest: manifest_sepolia,
+    chain: sepolia,
+    chainId: sepolia.id,
+    chainName: "SN_SEPOLIA",
+    rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet/rpc/v0_9",
+    slotName: undefined,
+  },
   mainnet: {
     manifest: {},
     chain: mainnet,
     chainId: mainnet.id,
     chainName: "SN_MAIN",
-    rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet/rpc/v0_9",
-    slotName: undefined,
-  },
-  sepolia: {
-    manifest: {},
-    chain: sepolia,
-    chainId: sepolia.id,
-    chainName: "SN_SEPOLIA",
     rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet/rpc/v0_9",
     slotName: undefined,
   },

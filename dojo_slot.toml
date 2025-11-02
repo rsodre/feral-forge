@@ -10,7 +10,7 @@ description = "In the depths of Death Mountain lies the Feral Forge, a vicious p
 icon_uri = "https://feral.beta.underware.gg/assets/feral-icon.jpg"
 cover_uri = "https://feral.beta.underware.gg/assets/feral-cover.jpg"
 website = "https://feral.beta.underware.gg"
-seed = "pistols_v1_0_0"
+seed = "feral_beta"
 
 [world.socials]
 x = "https://x.com/underware_gg"

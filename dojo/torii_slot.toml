@@ -1,7 +1,7 @@
 #
 # torii config for profile [sepolia]
 #
-world_address = "0x03b6f87f3ee07a25d8925629305eb63e094dc57d1ac974b698db29e66036fd62"
+world_address = "0x02098ea5abf3d4e6cd95df962c58ab746d9a7fd67a47cada710ea2e491354cd2"
 rpc = "https://api.cartridge.gg/x/feral-slot/katana"
 
 [events]
@@ -9,7 +9,7 @@ raw = true
 
 [sql]
 historical = [
-  # "pistols-TrophyProgression",
+  # "feral-TrophyProgression",
 ]
 
 # [grpc]
