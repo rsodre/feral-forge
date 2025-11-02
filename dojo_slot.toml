@@ -36,7 +36,7 @@ default = "feral"
 # namespaces
 #
 [owners]
-"pistols" = [
+"feral" = [
   "feral-game_token",
 ]
 
@@ -44,7 +44,7 @@ default = "feral"
 # writers
 #
 [writers]
-"pistols" = [
+"feral" = [
   "feral-game_token",
 ]
 

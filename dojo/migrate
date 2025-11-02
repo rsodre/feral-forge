@@ -15,8 +15,7 @@ if [[
 fi
 
 echo "BINDINGS_PATH: $BINDINGS_PATH"
-echo "SDK_GAME_PATH: $SDK_GAME_PATH"
-echo "SDK_MANIFEST_PATH: $SDK_MANIFEST_PATH"
+echo "CLIENT_MANIFEST_PATH: $CLIENT_MANIFEST_PATH"
 
 #-----------------
 # build
@@ -59,14 +58,14 @@ echo "👍"
 # copy manifest to client
 #
 echo "------------------------------------------------------------------------------"
-echo ">>> Copying manifest [$MANIFEST_FILE_PATH] to [$SDK_MANIFEST_PATH/]"
-mkdir -p $SDK_MANIFEST_PATH
-cp $MANIFEST_FILE_PATH $SDK_MANIFEST_PATH/
+echo ">>> Copying manifest [$MANIFEST_FILE_PATH] to [$CLIENT_MANIFEST_PATH/]"
+mkdir -p $CLIENT_MANIFEST_PATH
+cp $MANIFEST_FILE_PATH $CLIENT_MANIFEST_PATH/
 echo "👍"
 
 #
 # create torii config
-export GAME_ADDRESS=$(get_contract_address "feral-game_token")
+export GAME_TOKEN_ADDRESS=$(get_contract_address "feral-game_token")
 echo "------------------------------------------------------------------------------"
 echo ">>> Create torii config [$TORII_CONFIG_PATH]..."
 cp $TORII_CONFIG_TEMPLATE_PATH $TORII_CONFIG_PATH
@@ -74,7 +73,7 @@ sed -i '' -e "s|\$profile|$PROFILE|g" $TORII_CONFIG_PATH
 sed -i '' -e "s|\$world_address|$WORLD_ADDRESS|g" $TORII_CONFIG_PATH
 sed -i '' -e "s|\$world_block|$WORLD_BLOCK|g" $TORII_CONFIG_PATH
 sed -i '' -e "s|\$rpc_url|$RPC_URL|g" $TORII_CONFIG_PATH
-sed -i '' -e "s|\$game_token|$GAME_ADDRESS|g" $TORII_CONFIG_PATH
+sed -i '' -e "s|\$game_token|$GAME_TOKEN_ADDRESS|g" $TORII_CONFIG_PATH
 cat $TORII_CONFIG_PATH
 echo "👍"
 
@@ -85,37 +84,28 @@ if [[ "$PROFILE" == "dev" ]]; then
   #
   # copy typescript bindings
   if [[ -n "$ARG_BINDINGS" ]]; then # if is set
-    cp -R $BINDINGS_PATH/typescript/* $SDK_GAME_PATH/generated/
+    echo ">>> Copying bindings [$BINDINGS_PATH] to [$CLIENT_MANIFEST_PATH/]"
+    cp -R $BINDINGS_PATH/typescript/* $CLIENT_MANIFEST_PATH/
   fi
-  #
-  # run generators...
-  cd ../client
-  echo "------------------------------------------------------------------------------"
-  echo ">>> Generate constants..."
-  # npm run generate-constants --sdk=../sdk/src/games/pistols
-  # npx --package=@underware/feral-sdk generate-constants --src:"../dojo/src" --out:"../sdk/src/games/pistols/generated/constants.ts"
-  # ../sdk/bin/generateConstants.cjs --src:"../dojo/src" --out:"../sdk/src/games/pistols/generated/constants.ts"
-  execute_command "npm run generate-constants --sdk=$SDK_GAME_PATH"
-  echo "👍?"
   #
   # list copied files
   echo "------------------------------------------------------------------------------"
-  ls -ld $SDK_GAME_PATH/* | grep -E 'ts|json'
+  ls -ld $CLIENT_MANIFEST_PATH/* | grep -E 'ts|json'
   cd -
 fi
 
-if [[ "$CHAIN_ID" == "SN_SEPOLIA" || "$CHAIN_ID" == "SN_MAIN" ]]; then
-  cd ../client
-  echo "------------------------------------------------------------------------------"
-  echo ">>> Generate controller preset..."
-  # npm run generate-controller-preset --sdk=../sdk/src/games/pistols
-  # npx --package=@underware/feral-sdk generate-controller-preset --chain_id:"SN_MAIN" --out:"../sdk/src/games/pistols/generated/preset.json"
-  # node --experimental-wasm-modules ../sdk/dist/bin/generateControllerPreset.mjs --chain_id:"SN_MAIN" --out:"../sdk/src/games/pistols/generated/preset.json"
-  # cd ../sdk && turbo build && cd -
-  execute_command "npm run generate-controller-preset --chain_id="$CHAIN_ID" --sdk=$SDK_GAME_PATH"
-  echo "👍?"
-  cd -
-fi
+# if [[ "$CHAIN_ID" == "SN_SEPOLIA" || "$CHAIN_ID" == "SN_MAIN" ]]; then
+#   cd ../client
+#   echo "------------------------------------------------------------------------------"
+#   echo ">>> Generate controller preset..."
+#   # npm run generate-controller-preset --sdk=../sdk/src/games/pistols
+#   # npx --package=@underware/feral-sdk generate-controller-preset --chain_id:"SN_MAIN" --out:"../sdk/src/games/pistols/generated/preset.json"
+#   # node --experimental-wasm-modules ../sdk/dist/bin/generateControllerPreset.mjs --chain_id:"SN_MAIN" --out:"../sdk/src/games/pistols/generated/preset.json"
+#   # cd ../sdk && turbo build && cd -
+#   execute_command "npm run generate-controller-preset --chain_id="$CHAIN_ID" --sdk=$CLIENT_GENERATED_PATH"
+#   echo "👍?"
+#   cd -
+# fi
 
 #------------------
 echo "--- DONE! 👍"

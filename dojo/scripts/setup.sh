@@ -96,7 +96,7 @@ execute_command () {
 #-----------------
 # env setup
 #
-export GAME_SLUG="pistols"
+export GAME_SLUG="feral"
 export PROJECT_NAME=$(toml get $DOJO_PROFILE_FILE --raw world.name)
 export WORLD_ADDRESS=$(get_profile_env "world_address")
 export WORLD_BLOCK=$(get_profile_env "world_block")
@@ -110,12 +110,10 @@ export RPC_URL=${STARKNET_RPC_URL:-$(get_profile_env "rpc_url")}
 
 export MANIFEST_FILE_PATH="../manifest_$PROFILE.json"
 export BINDINGS_PATH="./bindings"
-export SDK_GAME_PATH="../sdk/src/games/$GAME_SLUG"
-export SDK_MANIFEST_PATH="$SDK_GAME_PATH/config/manifests"
+export CLIENT_MANIFEST_PATH="../client/src/generated"
 
 # contracts
-export ADMIN_ADDRESS=$(get_contract_address "feral-admin")
-export GAME_ADDRESS=$(get_contract_address "feral-game_token")
+export GAME_TOKEN_ADDRESS=$(get_contract_address "feral-game_token")
 
 # match rpc chain id with profile
 export CHAIN_ID=$(starkli chain-id --no-decode --rpc $RPC_URL | xxd -r -p)
@@ -130,14 +128,13 @@ if [[ -z "$ARG_OFFLINE" ]]; then # if not set
   fi
 fi
 
-
 echo "------------------------------------------------------------------------------"
-echo "Profile    : $PROFILE"
-echo "Project    : $PROJECT_NAME"
-echo "RPC Url    : $RPC_URL"
-echo "Chain Id   : $CHAIN_ID"
-echo "World      : $WORLD_ADDRESS"
-echo "Account    : $ACCOUNT_ADDRESS"
-echo "::game     : $GAME_ADDRESS"
-echo "Torii CFG  : $TORII_CONFIG_PATH"
+echo "Profile      : $PROFILE"
+echo "Project      : $PROJECT_NAME"
+echo "RPC Url      : $RPC_URL"
+echo "Chain Id     : $CHAIN_ID"
+echo "World        : $WORLD_ADDRESS"
+echo "Account      : $ACCOUNT_ADDRESS"
+echo "::game_token : $GAME_TOKEN_ADDRESS"
+echo "Torii CFG    : $TORII_CONFIG_PATH"
 echo "------------------------------------------------------------------------------"

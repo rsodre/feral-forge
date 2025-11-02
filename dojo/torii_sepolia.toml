@@ -1,7 +1,7 @@
 #
 # torii config for profile [sepolia]
 #
-world_address = "0x00cf5e671c2cc1b13214275e72fc579c53de924545a448fd8ccc5619ad49f326"
+world_address = "0x03b6f87f3ee07a25d8925629305eb63e094dc57d1ac974b698db29e66036fd62"
 rpc = "https://api.cartridge.gg/x/starknet/sepolia/rpc/v0_9"
 
 [events]
