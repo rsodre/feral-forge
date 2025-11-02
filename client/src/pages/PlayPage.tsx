@@ -5,15 +5,15 @@ import { useAccount } from '@starknet-react/core';
 import { ConnectButton } from '../components/ConnectButton';
 import App from '../components/App';
 
-export default function MainPage() {
-  const { account, address, isConnected } = useAccount();
+export default function PlayPage() {
   const navigate = useNavigate()
-
+  const { account, address, isConnected } = useAccount();
+  
   const _play = useCallback(() => {
-    navigate('/games');
+    window.location.href = '/play';
   }, []);
   const _help = useCallback(() => {
-    navigate('/help');
+    window.location.href = '/help';
   }, []);
 
   return (

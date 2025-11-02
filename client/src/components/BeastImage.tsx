@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Box } from "@radix-ui/themes";
+import { Box, Text } from "@radix-ui/themes";
 import { BEAST_NAMES } from "../data/BeastData";
 
 const TIER_COLORS = {
@@ -12,10 +12,12 @@ const TIER_COLORS = {
 
 export default function BeastImage({
   beastId,
-  size,
+  size = 'small',
+  label,
 }: {
   beastId: number,
   size: 'small' | 'medium' | 'large',
+  label?: string,
 }) {
   const _shiny = useMemo(() => (beastId > 100), [beastId]);
   const _id = useMemo(() => (beastId > 100 ? beastId - 100 : beastId), [beastId]);
@@ -33,14 +35,19 @@ export default function BeastImage({
       height: `${px}px`,
       padding: '4px',
     }}>
-        <img
-          className='BeastImage'
-          src={`/beasts/static/${type}/${beastName}.png`}
-          alt={`Beast ${beastId}`}
-          style={{
-            border,
-          }}
-        />
+      <img
+        className='BeastImage'
+        src={`/beasts/static/${type}/${beastName}.png`}
+        alt={`Beast ${beastId}`}
+        style={{
+          border,
+        }}
+      />
+      {label &&
+        <Box my="-0.5em">
+          <Text size="1">{label}</Text>
+        </Box>
+      }
     </Box>
   );
 }

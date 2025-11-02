@@ -3,7 +3,7 @@ import { Account, AccountInterface, BigNumberish, CairoOption, CairoCustomEnum }
 import * as models from "./models.gen";
 
 export function setupWorld(provider: DojoProvider) {
-
+  
 	const build_game_token_approve_calldata = (to: string, tokenId: BigNumberish): DojoCall => {
 		return {
 			contractName: "game_token",

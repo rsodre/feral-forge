@@ -12,6 +12,9 @@ import MintTestPage from './pages/tests/MintTestPage.tsx';
 import BeastsTestPage from './pages/tests/BeastsTestPage.tsx';
 import ErrorPage from './pages/ErrorPage.tsx';
 import MainPage from './pages/MainPage.tsx';
+import GamesPage from './pages/GamesPage.tsx';
+import HelpPage from './pages/HelpPage.tsx';
+import PlayPage from './pages/PlayPage.tsx';
 
 //
 // REF:
@@ -23,7 +26,9 @@ const router = createBrowserRouter([
     path: '/',
     children: [
       { path: "", element: <MainPage /> },
-      // { path: "/play", element: <PlayPage /> },
+      { path: "/help", element: <HelpPage /> },
+      { path: "/games", element: <GamesPage /> },
+      { path: "/play", element: <PlayPage /> },
     ],
     errorElement: <ErrorPage />,
   },

@@ -41,6 +41,7 @@ export type ProfileConfig = {
   chainId: bigint;
   chainName: string;
   rpcUrl: string;
+  toriiUrl: string | undefined;
   slotName: string | undefined;
 };
 
@@ -51,6 +52,7 @@ const profiles: Record<string, ProfileConfig> = {
     chainId: katanaChain.id,
     chainName: katanaChain.name,
     rpcUrl: katanaRpcUrl,
+    toriiUrl: undefined,
     slotName: undefined,
   },
   sepolia: {
@@ -58,7 +60,8 @@ const profiles: Record<string, ProfileConfig> = {
     chain: sepolia,
     chainId: sepolia.id,
     chainName: "SN_SEPOLIA",
-    rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet/rpc/v0_9",
+    rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia/rpc/v0_9",
+    toriiUrl: undefined,
     slotName: undefined,
   },
   mainnet: {
@@ -67,6 +70,7 @@ const profiles: Record<string, ProfileConfig> = {
     chainId: mainnet.id,
     chainName: "SN_MAIN",
     rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet/rpc/v0_9",
+    toriiUrl: undefined,
     slotName: undefined,
   },
 }
@@ -75,6 +79,8 @@ export const profileConfig = profiles[PROFILE];
 
 export const dojoConfig = createDojoConfig({
   manifest: profileConfig.manifest,
+  rpcUrl: profileConfig.rpcUrl,
+  toriiUrl: profileConfig.toriiUrl,
 });
 
 export const createDojoSdk = async (): Promise<SDK<SchemaType>> => {
