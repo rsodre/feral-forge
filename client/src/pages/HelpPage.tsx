@@ -132,7 +132,7 @@ export default function HelpPage() {
           <Separator my="1" style={{ opacity: 0 }} />
 
           <Text size="3">
-            <Strong>Lower Tiers</Strong> score more points
+            <Strong>Higher Tiers</Strong> score more points
             <br />
             <Strong>Shinies</Strong> score even more!
           </Text>
