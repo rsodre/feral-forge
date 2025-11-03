@@ -1,21 +1,25 @@
-import { useCallback } from 'react';
-import { useNavigate } from 'react-router';
-import { Flex, Heading } from '@radix-ui/themes'
+import { Flex, Heading, Spinner } from '@radix-ui/themes'
 import { useGameInfo } from '../hooks/useGameInfo';
 import { useControllerUsername } from '../hooks/useControllerUsername';
+import { useDelay } from './useDelay';
 
 export function GameScore({
   gameId,
 }: {
   gameId: number;
 }) {
-  const navigate = useNavigate()
-  const { gameInfo } = useGameInfo(gameId);
+  const _gameId = useDelay(gameId, 3000);
+  const { gameInfo } = useGameInfo(_gameId ?? 0);
   const { username } = useControllerUsername(gameInfo?.top_score_address ?? '');
 
-  const _play = useCallback(() => {
-    navigate(`/play/${gameId}`);
-  }, []);
+  if (!gameInfo) {
+    return (
+      <Flex direction="column" align="center" gap="1">
+        <Heading size="4" weight="bold">Loading Top Score...</Heading>
+        <Spinner />
+      </Flex>
+    )
+  }
 
   return (
     <Flex direction="column" align="center" gap="1">

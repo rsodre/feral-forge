@@ -12,8 +12,7 @@ export function useGameInfo(gameId: number) {
 
   const [gameInfo, setGameInfo] = useState<GameInfo>();
   useEffect(() => {
-    if (client && isConnected) {
-      console.log("Getting total supply...");
+    if (client && isConnected && gameId > 0) {
       client.game_token.getGameInfo(gameId).then((gameInfo: GameInfo) => {
         setGameInfo(gameInfo);
       });

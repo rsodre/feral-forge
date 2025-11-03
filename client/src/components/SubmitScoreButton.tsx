@@ -36,6 +36,6 @@ export function SubmitScoreButton({
   }, [client, account, gameId, movesHistory]);
 
   return (
-    <Button size="3" onClick={_submit} disabled={disabled || !isConnected || submitting || submitted}>Submit your Score!!!</Button>
+    <Button size="3" onClick={_submit} disabled={disabled || !isConnected || submitting || submitted}>Submit your Game!!!</Button>
   )
 }
