@@ -9,13 +9,6 @@ export default function MainPage() {
   const { account, address, isConnected } = useAccount();
   const navigate = useNavigate()
 
-  const _play = useCallback(() => {
-    navigate('/games');
-  }, []);
-  const _help = useCallback(() => {
-    navigate('/help');
-  }, []);
-
   return (
     <App bg='home'>
       <Flex
@@ -39,9 +32,9 @@ export default function MainPage() {
 
           <Separator my="4" style={{ opacity: 0 }} />
 
-          <Button size="3" onClick={_play} disabled={!isConnected}>Play Now</Button>
+          <Button size="3" onClick={() => navigate('/games')} disabled={!isConnected}>Play Now</Button>
           <ConnectButton /> 
-          <Button size="3" onClick={_help}>How to Play</Button>
+          <Button size="3" onClick={() => navigate('/help')}>How to Play</Button>
         </Flex>
       </Flex>
     </App>

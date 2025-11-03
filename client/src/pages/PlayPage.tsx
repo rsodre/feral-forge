@@ -7,11 +7,14 @@ import { useRouteSlugs } from '../hooks/useRoute';
 import { useGameStart } from '../hooks/useGameStart';
 import { useGameMove } from '../hooks/useGameMove';
 import { GameBoard } from '../components/GameBoard';
-import { ParsedGameState } from '../hooks/useParsedGameState';
+import { SubmitScoreButton } from '../components/SubmitScoreButton';
+import { type ParsedGameState } from '../hooks/useParsedGameState';
 import { MoveDirection } from '../data/types';
 import App from '../components/App';
+import { GameScore } from '../components/GameScore';
 
 export default function PlayPage() {
+  const navigate = useNavigate()
   const { game_id } = useRouteSlugs()
   const gameId = useMemo(() => Number(game_id ?? 0), [game_id]);
   const { account, address, isConnected } = useAccount();
@@ -51,6 +54,11 @@ export default function PlayPage() {
     console.log(">>> movesHistory:", movesHistory);
   }, [movesHistory]);
 
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const _submitted = useCallback((gameId: number) => {
+    setSubmitted(true);
+  }, []);
+
   return (
     <App bg='game'>
       <Flex
@@ -89,28 +97,47 @@ export default function PlayPage() {
 
           {/* <Separator my="4" style={{ opacity: 0 }} /> */}
 
-          <Grid columns="3" gap="1" width="200px" height="200px">
-            <Box />
-            <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Up)} >
-              <DoubleArrowUpIcon/>
-            </Button>
-            <Box />
+          {!currentGameState?.finished &&
+            <Grid columns="3" gap="1" width="200px" height="200px">
+              <Box />
+              <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Up)} >
+                <DoubleArrowUpIcon />
+              </Button>
+              <Box />
 
-            <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Left)} >
-              <DoubleArrowLeftIcon/>
+              <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Left)} >
+                <DoubleArrowLeftIcon />
 
-            </Button>
-            <Box />
-            <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Right)} >
-              <DoubleArrowRightIcon/>
-            </Button>
+              </Button>
+              <Box />
+              <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Right)} >
+                <DoubleArrowRightIcon />
+              </Button>
 
-            <Box />
-            <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Down)} >
-              <DoubleArrowDownIcon/>
-            </Button>
-            <Box />
-          </Grid>
+              <Box />
+              <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Down)} >
+                <DoubleArrowDownIcon />
+              </Button>
+              <Box />
+            </Grid>
+          }
+
+          {currentGameState?.finished && !submitted &&
+            <>
+              <Heading size="4" weight="bold">
+                Game Over!
+              </Heading>
+              <SubmitScoreButton gameId={gameId} movesHistory={movesHistory} onSubmitted={_submitted} />
+            </>
+          }
+
+          {submitted &&
+            <>
+              <GameScore gameId={gameId} />
+              <Button size="3" onClick={() => window.location.reload()}>Play Again!</Button>
+              <Button size="3" onClick={() => navigate('/')}>Back</Button>
+            </>
+          }
 
         </Flex>
       </Flex>

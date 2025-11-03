@@ -8,10 +8,6 @@ import App from '../components/App';
 export default function HelpPage() {
   const navigate = useNavigate()
 
-  const _home = useCallback(() => {
-    navigate('/');
-  }, []);
-
   return (
     <App bg='home'>
       <Flex
@@ -125,7 +121,7 @@ export default function HelpPage() {
             <Strong>Shinies</Strong> score even more!
           </Text>
 
-          <Button size="3" onClick={_home}>Back</Button>
+          <Button size="3" onClick={() => navigate('/')}>Back</Button>
         </Flex>
       </Flex>
     </App>

@@ -17,10 +17,6 @@ export default function GamesPage() {
     ));
   }, [totalSupply]);
 
-  const _home = useCallback(() => {
-    navigate('/');
-  }, []);
-
   const _minted = useCallback((gameId: string) => {
     navigate(`/play/${gameId}`);
   }, []);
@@ -62,7 +58,7 @@ export default function GamesPage() {
 
           <MintGameButton onMint={_minted}>Forge a New Game</MintGameButton>
 
-          <Button size="3" onClick={_home}>Back</Button>
+          <Button size="3" onClick={() => navigate('/')}>Back</Button>
         </Flex>
       </Flex>
     </App>
