@@ -1,11 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Separator, Text, Strong, Grid } from '@radix-ui/themes'
+import { Flex, Button, Heading, Text, Strong, Grid } from '@radix-ui/themes'
 import { useTotalSupply } from '../hooks/useTotalSupply';
-import { MintGameButton } from '../components/MintGameButton';
-import App from '../components/App';
 import { useGameInfo } from '../hooks/useGameInfo';
 import { useControllerUsername } from '../hooks/useControllerUsername';
+import { MintGameButton } from '../components/MintGameButton';
+import { TopMenu } from '../components/TopMenu';
+import App from '../components/App';
 
 export default function GamesPage() {
   const navigate = useNavigate()
@@ -23,6 +24,7 @@ export default function GamesPage() {
 
   return (
     <App bg='home'>
+      <TopMenu />
       <Flex
         direction="column"
         align="center"
@@ -30,7 +32,7 @@ export default function GamesPage() {
         gap="4"
         style={{
           minHeight: '100vh',
-          padding: '2rem',
+          padding: '0',
         }}
       >
         <Flex direction="column" align="center" gap="4" style={{

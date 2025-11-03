@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Flex, Button, Heading, Separator } from '@radix-ui/themes'
 import { useAccount } from '@starknet-react/core';
 import { ConnectButton } from '../components/ConnectButton';
+import { TopMenu } from '../components/TopMenu';
 import App from '../components/App';
 
 export default function MainPage() {
@@ -11,6 +12,7 @@ export default function MainPage() {
 
   return (
     <App bg='home'>
+      <TopMenu />
       <Flex
         direction="column"
         align="center"

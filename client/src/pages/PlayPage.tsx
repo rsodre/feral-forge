@@ -8,10 +8,11 @@ import { useGameStart } from '../hooks/useGameStart';
 import { useGameMove } from '../hooks/useGameMove';
 import { GameBoard } from '../components/GameBoard';
 import { SubmitScoreButton } from '../components/SubmitScoreButton';
+import { GameScore } from '../components/GameScore';
+import { TopMenu } from '../components/TopMenu';
 import { type ParsedGameState } from '../hooks/useParsedGameState';
 import { MoveDirection } from '../data/types';
 import App from '../components/App';
-import { GameScore } from '../components/GameScore';
 
 export default function PlayPage() {
   const navigate = useNavigate()
@@ -61,6 +62,7 @@ export default function PlayPage() {
 
   return (
     <App bg='game'>
+      <TopMenu />
       <Flex
         direction="column"
         align="center"

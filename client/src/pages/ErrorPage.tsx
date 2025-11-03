@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useRouteError } from 'react-router';
 import { Flex, Heading, Text, Link } from '@radix-ui/themes';
+import { TopMenu } from '../components/TopMenu';
 import App from '../components/App';
 
 //
@@ -32,6 +33,7 @@ export default function ErrorPage() {
 
   return (
     <App bg='home'>
+      <TopMenu />
       <Flex
         direction="column"
         align="center"

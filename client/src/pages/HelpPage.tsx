@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { Flex, Button, Heading, Separator, Text, Strong, Grid } from '@radix-ui/themes'
 import { PlusIcon, ArrowRightIcon } from '@radix-ui/react-icons';
+import { TopMenu } from '../components/TopMenu';
 import BeastImage from '../components/BeastImage';
 import App from '../components/App';
 
@@ -25,6 +26,7 @@ export default function HelpPage() {
 
   return (
     <App bg='home'>
+      <TopMenu />
       <Flex
         direction="column"
         align="center"
@@ -32,7 +34,6 @@ export default function HelpPage() {
         gap="4"
         style={{
           minHeight: '100vh',
-          padding: '2rem',
         }}
       >
         <Flex direction="column" align="center" gap="4" style={{
@@ -62,7 +63,7 @@ export default function HelpPage() {
             to <Strong>upgrade</Strong> to a <Strong>Shiny</Strong> Beast
           </Text>
 
-          <Grid columns="2" gapY="4" gapX="6">
+          <Grid columns={{ initial: '1', sm: '2' }} gapY="4" gapX="6">
             <Flex align="center" justify="center">
               <BeastImage beastId={21} size='small' label={_score('T5')} displayTier />
               <PlusIcon />
