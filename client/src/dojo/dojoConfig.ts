@@ -62,7 +62,7 @@ const profiles: Record<string, ProfileConfig> = {
     chainName: "SN_SEPOLIA",
     rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia/rpc/v0_9",
     toriiUrl: undefined,
-    slotName: undefined,
+    slotName: 'kode-sepolia',
   },
   mainnet: {
     manifest: {},
@@ -71,7 +71,7 @@ const profiles: Record<string, ProfileConfig> = {
     chainName: "SN_MAIN",
     rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet/rpc/v0_9",
     toriiUrl: undefined,
-    slotName: undefined,
+    slotName: 'kode-mainnet',
   },
 }
 

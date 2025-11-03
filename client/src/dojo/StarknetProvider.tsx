@@ -13,6 +13,7 @@ const controller = new ControllerConnector({
   policies,
   defaultChainId: bigintToHex(profileConfig.chainId),
   slot: profileConfig.slotName,
+  // preset: "karat",
   chains: [{
     rpcUrl: profileConfig.rpcUrl,
   }],
