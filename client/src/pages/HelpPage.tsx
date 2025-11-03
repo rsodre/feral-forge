@@ -5,6 +5,21 @@ import { PlusIcon, ArrowRightIcon } from '@radix-ui/react-icons';
 import BeastImage from '../components/BeastImage';
 import App from '../components/App';
 
+const SCORE_PER_TIER = {
+  'T5': 1,
+  'T4': 3,
+  'T3': 10,
+  'T2': 30,
+  'T1': 100,
+  'S5': 50,
+  'S4': 100,
+  'S3': 150,
+  'S2': 200,
+  'S1': 250,
+}
+
+const _score = (tier: keyof typeof SCORE_PER_TIER) => (`${SCORE_PER_TIER[tier]} pts`)
+
 export default function HelpPage() {
   const navigate = useNavigate()
 
@@ -49,67 +64,67 @@ export default function HelpPage() {
 
           <Grid columns="2" gapY="4" gapX="6">
             <Flex align="center" justify="center">
-              <BeastImage beastId={21} size='small' label='T5' />
+              <BeastImage beastId={21} size='small' label={_score('T5')} displayTier />
               <PlusIcon />
-              <BeastImage beastId={22} size='small' label='T5' />
+              <BeastImage beastId={22} size='small' label={_score('T5')} displayTier />
               <ArrowRightIcon />
-              <BeastImage beastId={16} size='small' label='T4' />
+              <BeastImage beastId={16} size='small' label={_score('T4')} displayTier />
             </Flex>
 
             <Flex align="center" justify="center">
-              <BeastImage beastId={17} size='small' label='T4' />
+              <BeastImage beastId={17} size='small' label={_score('T4')} displayTier />
               <PlusIcon />
-              <BeastImage beastId={16} size='small' label='T4' />
+              <BeastImage beastId={16} size='small' label={_score('T4')} displayTier />
               <ArrowRightIcon />
-              <BeastImage beastId={11} size='small' label='T3' />
+              <BeastImage beastId={11} size='small' label={_score('T3')} displayTier />
             </Flex>
 
             <Flex align="center" justify="center">
-              <BeastImage beastId={11} size='small' label='T3' />
+              <BeastImage beastId={11} size='small' label={_score('T3')} displayTier />
               <PlusIcon />
-              <BeastImage beastId={12} size='small' label='T3' />
+              <BeastImage beastId={12} size='small' label={_score('T3')} displayTier />
               <ArrowRightIcon />
-              <BeastImage beastId={6} size='small' label='T2' />
+              <BeastImage beastId={6} size='small' label={_score('T2')} displayTier />
             </Flex>
 
             <Flex align="center" justify="center">
-              <BeastImage beastId={6} size='small' label='T2' />
+              <BeastImage beastId={6} size='small' label={_score('T2')} displayTier />
               <PlusIcon />
-              <BeastImage beastId={7} size='small' label='T2' />
+              <BeastImage beastId={7} size='small' label={_score('T2')} displayTier />
               <ArrowRightIcon />
-              <BeastImage beastId={1} size='small' label='T1' />
+              <BeastImage beastId={1} size='small' label={_score('T1')} displayTier />
             </Flex>
 
             <Flex align="center" justify="center">
-              <BeastImage beastId={121} size='small' label='T5' />
+              <BeastImage beastId={16} size='small' label={_score('T4')} displayTier />
               <PlusIcon />
-              <BeastImage beastId={122} size='small' label='T5' />
+              <BeastImage beastId={16} size='small' label={_score('T4')}  displayTier />
               <ArrowRightIcon />
-              <BeastImage beastId={116} size='small' label='T4' />
+              <BeastImage beastId={116} size='small' label={_score('S4')} displayTier />
             </Flex>
 
             <Flex align="center" justify="center">
-              <BeastImage beastId={117} size='small' label='T4' />
+              <BeastImage beastId={15} size='small' label={_score('T3')} displayTier />
               <PlusIcon />
-              <BeastImage beastId={116} size='small' label='T4' />
+              <BeastImage beastId={15} size='small' label={_score('T3')} displayTier />
               <ArrowRightIcon />
-              <BeastImage beastId={111} size='small' label='T3' />
+              <BeastImage beastId={115} size='small' label={_score('S3')} displayTier />
             </Flex>
 
             <Flex align="center" justify="center">
-              <BeastImage beastId={111} size='small' label='T3' />
+              <BeastImage beastId={6} size='small' label={_score('T2')} displayTier />
               <PlusIcon />
-              <BeastImage beastId={112} size='small' label='T3' />
+              <BeastImage beastId={6} size='small' label={_score('T2')} displayTier />
               <ArrowRightIcon />
-              <BeastImage beastId={106} size='small' label='T2' />
+              <BeastImage beastId={106} size='small' label={_score('S2')} displayTier />
             </Flex>
 
             <Flex align="center" justify="center">
-              <BeastImage beastId={106} size='small' label='T2' />
+              <BeastImage beastId={1} size='small' label={_score('T1')} displayTier />
               <PlusIcon />
-              <BeastImage beastId={107} size='small' label='T2' />
+              <BeastImage beastId={1} size='small' label={_score('T1')} displayTier />
               <ArrowRightIcon />
-              <BeastImage beastId={101} size='small' label='T1' />
+              <BeastImage beastId={101} size='small' label={_score('S1')} displayTier />
             </Flex>
           </Grid>
 
