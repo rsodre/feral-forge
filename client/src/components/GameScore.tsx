@@ -8,7 +8,7 @@ export function GameScore({
 }: {
   gameId: number;
 }) {
-  const _gameId = useDelay(gameId, 3000);
+  const _gameId = useDelay(gameId, 5000);
   const { gameInfo } = useGameInfo(_gameId ?? 0);
   const { username } = useControllerUsername(gameInfo?.top_score_address ?? '');
 
