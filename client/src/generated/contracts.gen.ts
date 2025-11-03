@@ -432,7 +432,7 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_game_token_submitGame_calldata = (gameId: BigNumberish, moves: Array<models.Direction>): DojoCall => {
+  const build_game_token_submitGame_calldata = (gameId: BigNumberish, moves: Array<CairoCustomEnum>): DojoCall => {
 		return {
 			contractName: "game_token",
 			entrypoint: "submit_game",
@@ -440,7 +440,7 @@ export function setupWorld(provider: DojoProvider) {
 		};
 	};
 
-	const game_token_submitGame = async (snAccount: Account | AccountInterface, gameId: BigNumberish, moves: Array<models.Direction>) => {
+  const game_token_submitGame = async (snAccount: Account | AccountInterface, gameId: BigNumberish, moves: Array<CairoCustomEnum>) => {
 		try {
 			return await provider.execute(
 				snAccount,

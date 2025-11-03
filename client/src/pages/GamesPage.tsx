@@ -54,13 +54,13 @@ export default function GamesPage() {
 
           <Grid columns="4" gap="2">
             <Text><Strong>Game</Strong></Text>
-            <Text><Strong>Score</Strong></Text>
             <Text><Strong>Player</Strong></Text>
+            <Text><Strong>Score</Strong></Text>
             <Text></Text>
             {items}
           </Grid>
 
-          <MintGameButton onMint={_minted}>Create New Game</MintGameButton>
+          <MintGameButton onMint={_minted}>Forge a New Game</MintGameButton>
 
           <Button size="3" onClick={_home}>Back</Button>
         </Flex>
@@ -84,9 +84,9 @@ function GameRow({
 
   return (
     <React.Fragment>
-      <Text>Forge #{gameId}</Text>
-      <Text>{Number(gameInfo?.top_score ?? 0)}</Text>
-      <Text>{username}</Text>
+      <Text size="1">Forge #{gameId}</Text>
+      <Text size="1">{username}</Text>
+      <Text size="1">{Number(gameInfo?.top_score ?? 0)}</Text>
       <Button size="1" onClick={_play}>Play</Button>
     </React.Fragment>
   )

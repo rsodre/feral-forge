@@ -15,11 +15,9 @@ export default function App({
   bg: 'home' | 'game' | undefined;
   children: React.ReactNode;
 }) {
-  const classNames = useMemo(() => {
-    return [
-      bg == 'game' ? 'AppGme' : 'AppHome',
-    ]
-  }, [bg]);
+  const classNames = useMemo(() => ([
+    bg == 'game' ? 'AppGame' : 'AppHome',
+  ]), [bg]);
 
   return (
     <div className={classNames.join(' ')}>
