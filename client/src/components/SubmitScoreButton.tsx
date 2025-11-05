@@ -1,9 +1,9 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Button } from '@radix-ui/themes'
+import { useCallback, useState } from 'react';
 import { useAccount } from '@starknet-react/core';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { SchemaType } from '../generated/models.gen';
 import { directionToCairoCustomEnum, MoveDirection } from '../data/types';
+import { MenuButton } from './Buttons';
 
 export function SubmitScoreButton({
   gameId,
@@ -36,6 +36,6 @@ export function SubmitScoreButton({
   }, [client, account, gameId, movesHistory]);
 
   return (
-    <Button size="3" onClick={_submit} disabled={disabled || !isConnected || submitting || submitted}>Submit your Game!!!</Button>
+    <MenuButton onClick={_submit} disabled={disabled || !isConnected || submitting || submitted}>Submit your Game!!!</MenuButton>
   )
 }

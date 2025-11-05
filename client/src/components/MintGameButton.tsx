@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Button } from '@radix-ui/themes'
 import { useAccount } from '@starknet-react/core';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { SchemaType } from '../generated/models.gen';
+import { MenuButton } from './Buttons';
 
 export function MintGameButton({
   onMint,
@@ -43,6 +43,6 @@ export function MintGameButton({
   }, [minting, minted, children]);
 
   return (
-    <Button size="3" onClick={_mint} disabled={disabled || !isConnected || minting || minted}>{label}</Button>
+    <MenuButton onClick={_mint} disabled={disabled || !isConnected || minting || minted}>{label}</MenuButton>
   )
 }

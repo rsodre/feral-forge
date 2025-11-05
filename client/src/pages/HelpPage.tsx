@@ -1,11 +1,12 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Separator, Text, Strong, Grid, Code } from '@radix-ui/themes'
+import { Flex, Heading, Separator, Text, Strong, Grid, Code } from '@radix-ui/themes'
 import { PlusIcon, ArrowRightIcon } from '@radix-ui/react-icons';
-import { TopMenu } from '../components/TopMenu';
 import { BeastImage, SCORE_PER_TIER } from '../components/BeastImage';
-import App from '../components/App';
 import { DesktopOnly, MobileOnly } from '../components/Responsive';
+import { MenuButton } from '../components/Buttons';
+import { TopMenu } from '../components/TopMenu';
+import App from '../components/App';
 
 const _score = (tier: keyof typeof SCORE_PER_TIER) => (
 <Code color='gray' variant='ghost'>{`${SCORE_PER_TIER[tier]} pts`}</Code>
@@ -160,7 +161,7 @@ export default function HelpPage() {
             <Strong>Shinies</Strong> score even more!
           </Text>
 
-          <Button size="3" onClick={() => navigate('/')}>Back</Button>
+          <MenuButton onClick={() => navigate('/')}>Back</MenuButton>
         </Flex>
       </Flex>
     </App>

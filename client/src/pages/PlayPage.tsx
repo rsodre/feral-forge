@@ -12,6 +12,7 @@ import { GameScore } from '../components/GameScore';
 import { TopMenu } from '../components/TopMenu';
 import { type ParsedGameState } from '../hooks/useParsedGameState';
 import { MoveDirection } from '../data/types';
+import { MenuButton } from '../components/Buttons';
 import App from '../components/App';
 
 export default function PlayPage() {
@@ -130,14 +131,15 @@ export default function PlayPage() {
                 Game Over!
               </Heading>
               <SubmitScoreButton gameId={gameId} movesHistory={movesHistory} onSubmitted={_submitted} />
+              <MenuButton onClick={() => navigate('/')}>Back</MenuButton>
             </>
           }
 
           {submitted &&
             <>
               <GameScore gameId={gameId} />
-              <Button size="3" onClick={() => window.location.reload()}>Play Again!</Button>
-              <Button size="3" onClick={() => navigate('/')}>Back</Button>
+              <MenuButton onClick={() => window.location.reload()}>Replay level</MenuButton>
+              <MenuButton onClick={() => navigate('/')}>Back</MenuButton>
             </>
           }
 

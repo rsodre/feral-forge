@@ -1,8 +1,8 @@
-import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Separator } from '@radix-ui/themes'
+import { Flex, Heading, Separator } from '@radix-ui/themes'
 import { useAccount } from '@starknet-react/core';
 import { ConnectButton } from '../components/ConnectButton';
+import { MenuButton } from '../components/Buttons';
 import { TopMenu } from '../components/TopMenu';
 import App from '../components/App';
 
@@ -34,9 +34,9 @@ export default function MainPage() {
 
           <Separator my="4" style={{ opacity: 0 }} />
 
-          <Button size="3" onClick={() => navigate('/games')} disabled={!isConnected}>Play Now</Button>
+          <MenuButton onClick={() => navigate('/games')} disabled={!isConnected}>Play</MenuButton>
           <ConnectButton /> 
-          <Button size="3" onClick={() => navigate('/help')}>How to Play</Button>
+          <MenuButton onClick={() => navigate('/help')}>How to Play</MenuButton>
         </Flex>
       </Flex>
     </App>

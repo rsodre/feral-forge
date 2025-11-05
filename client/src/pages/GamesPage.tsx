@@ -6,6 +6,7 @@ import { useGameInfo } from '../hooks/useGameInfo';
 import { useControllerUsername } from '../hooks/useControllerUsername';
 import { MintGameButton } from '../components/MintGameButton';
 import { TopMenu } from '../components/TopMenu';
+import { MenuButton } from '../components/Buttons';
 import App from '../components/App';
 
 export default function GamesPage() {
@@ -61,7 +62,7 @@ export default function GamesPage() {
 
           <MintGameButton onMint={_minted}>Forge a New Game</MintGameButton>
 
-          <Button size="3" onClick={() => navigate('/')}>Back</Button>
+          <MenuButton onClick={() => navigate('/')}>Back</MenuButton>
         </Flex>
       </Flex>
     </App>

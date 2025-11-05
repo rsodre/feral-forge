@@ -1,9 +1,13 @@
 import { useCallback } from 'react';
-import { Button } from '@radix-ui/themes'
 import { useAccount, useConnect } from '@starknet-react/core';
 import { useConnectedController } from '../hooks/useController';
+import { MenuButton } from './Buttons';
 
-export function ConnectButton() {
+export function ConnectButton({
+  size = '3',
+}: {
+  size?: '1' | '2' | '3';
+}) {
   const { account, address, isConnected } = useAccount();
   const { connectAsync, connectors } = useConnect();
 
@@ -18,15 +22,15 @@ export function ConnectButton() {
 
   if (isConnected) {
     return (
-      <Button size="3" onClick={_openController} disabled={!isConnected}>
+      <MenuButton size={size} onClick={_openController} disabled={!isConnected}>
         <img src={(icon as string) ?? ''} style={{ width: '20px', height: '20px' }} />
         {' '}
         {username}
-      </Button>
+      </MenuButton>
     )
   }
 
   return (
-    <Button size="3" onClick={_connect} disabled={isConnected}>Connect</Button>
+    <MenuButton size={size} onClick={_connect} disabled={isConnected}>Connect</MenuButton>
   )
 }

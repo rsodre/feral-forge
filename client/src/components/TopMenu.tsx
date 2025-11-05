@@ -1,24 +1,25 @@
 'use client';
 import { useMemo } from 'react';
 import { Box, Flex, IconButton, DropdownMenu, Button } from '@radix-ui/themes';
-import { HamburgerMenuIcon, HomeIcon } from '@radix-ui/react-icons';
-import { ConnectButton } from './ConnectButton';
+import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 import { useNavigate } from 'react-router';
+import { ConnectButton } from './ConnectButton';
+import { MenuButton } from './Buttons';
 
 export function TopMenu() {
   const navigate = useNavigate()
 
   const items = useMemo(() => [
-    <Button onClick={() => navigate('/')}>
+    <MenuButton size='2' onClick={() => navigate('/')}>
       Home
-    </Button>,
-    <Button onClick={() => navigate('/games')}>
-      Play Now
-    </Button>,
-    <Button onClick={() => navigate('/help')}>
+    </MenuButton>,
+    <MenuButton size='2' onClick={() => navigate('/games')}>
+      Play
+    </MenuButton>,
+    <MenuButton size='2' onClick={() => navigate('/help')}>
       How To Play
-    </Button>,
-    <ConnectButton />,
+    </MenuButton>,
+    <ConnectButton size='2' />,
   ], []);
 
   return (
