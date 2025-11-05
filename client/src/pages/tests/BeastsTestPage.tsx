@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Flex, Grid} from '@radix-ui/themes'
-import BeastImage from '../../components/BeastImage'
+import { BeastImage } from '../../components/BeastImage'
 import App from '../../components/App'
 
 export default function BeastsTestPage() {

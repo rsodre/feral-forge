@@ -1,26 +1,15 @@
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Separator, Text, Strong, Grid } from '@radix-ui/themes'
+import { Flex, Button, Heading, Separator, Text, Strong, Grid, Code } from '@radix-ui/themes'
 import { PlusIcon, ArrowRightIcon } from '@radix-ui/react-icons';
 import { TopMenu } from '../components/TopMenu';
-import BeastImage from '../components/BeastImage';
+import { BeastImage, SCORE_PER_TIER } from '../components/BeastImage';
 import App from '../components/App';
 import { DesktopOnly, MobileOnly } from '../components/Responsive';
 
-const SCORE_PER_TIER = {
-  'T5': 1,
-  'T4': 3,
-  'T3': 10,
-  'T2': 30,
-  'T1': 100,
-  'S5': 50,
-  'S4': 100,
-  'S3': 150,
-  'S2': 200,
-  'S1': 250,
-}
-
-const _score = (tier: keyof typeof SCORE_PER_TIER) => (`${SCORE_PER_TIER[tier]} pts`)
+const _score = (tier: keyof typeof SCORE_PER_TIER) => (
+<Code color='gray' variant='ghost'>{`${SCORE_PER_TIER[tier]} pts`}</Code>
+);
 
 export default function HelpPage() {
   const navigate = useNavigate();

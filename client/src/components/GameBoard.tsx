@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Button, Grid, Spinner } from '@radix-ui/themes'
-import { GameState } from '../generated/models.gen';
+import { useEffect, useMemo } from 'react';
+import { Box, Grid, Spinner } from '@radix-ui/themes'
 import { ParsedGameState } from '../hooks/useParsedGameState';
-import BeastImage from './BeastImage';
+import { BeastImage } from './BeastImage';
 
 export function GameBoard({
   gameState,
