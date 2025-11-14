@@ -117,14 +117,31 @@ mod tests {
         assert_eq!(sys.game.balance_of(OWNER()), 2, "token_3");
         let game_info_3: GameInfo = sys.world.read_model(3);
         assert_eq!(game_info_3.minter_address, OWNER(), "token_3");
-        assert_ne!(game_info_3.seed, game_info_1.seed, "token_3");
-        assert_ne!(game_info_3.seed, game_info_2.seed, "token_3");
-        assert_ne!(game_info_3.seed, 0, "token_3");
 
-        // test getteer
+        _mint_token(ref sys, RECIPIENT());
+        assert_eq!(sys.game.total_supply(), 4, "token_4");
+        assert_eq!(sys.game.owner_of(4), RECIPIENT(), "token_4");
+        assert_eq!(sys.game.balance_of(RECIPIENT()), 1, "token_4");
+        let game_info_4: GameInfo = sys.world.read_model(4);
+        assert_eq!(game_info_4.minter_address, RECIPIENT(), "token_4");
+
+
+        // test getter
         let got_info_1: GameInfo = sys.game.get_game_info(1);
         assert_eq!(got_info_1.minter_address, game_info_1.minter_address, "got_info_1");
         assert_eq!(got_info_1.seed, game_info_1.seed, "got_info_1");
+
+        // test getter
+        let got_info_arr1: Span<GameInfo> = sys.game.get_games_info(1, 10).span();
+        assert_eq!(got_info_arr1.len(), 4, "got_info_arr1");
+        assert_eq!(*got_info_arr1[0].seed, game_info_1.seed, "got_info_arr1");
+        assert_eq!(*got_info_arr1[1].seed, game_info_2.seed, "got_info_arr1");
+        assert_eq!(*got_info_arr1[2].seed, game_info_3.seed, "got_info_arr1");
+        assert_eq!(*got_info_arr1[3].seed, game_info_4.seed, "got_info_arr1");
+        let got_info_arr2: Span<GameInfo> = sys.game.get_games_info(2, 2).span();
+        assert_eq!(got_info_arr2.len(), 2, "got_info_arr2");
+        assert_eq!(*got_info_arr2[0].seed, game_info_2.seed, "got_info_arr2");
+        assert_eq!(*got_info_arr2[1].seed, game_info_3.seed, "got_info_arr2");
     }
 
 

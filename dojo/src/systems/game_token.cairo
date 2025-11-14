@@ -63,6 +63,7 @@ pub trait IGameToken<TState> {
     fn start_game(self: @TState, game_id: u128) -> GameState;
     fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
     fn get_game_info(self: @TState, game_id: u128) -> GameInfo;
+    fn get_games_info(self: @TState, game_id: u128, count: usize) -> Array<GameInfo>;
     // admin
     fn set_minting_paused(ref self: TState, is_paused: bool);
     fn update_token_metadata(ref self: TState, token_id: u256);
@@ -77,6 +78,7 @@ pub trait IGameTokenPublic<TState> {
     fn start_game(self: @TState, game_id: u128) -> GameState;
     fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
     fn get_game_info(self: @TState, game_id: u128) -> GameInfo;
+    fn get_games_info(self: @TState, game_id: u128, count: usize) -> Array<GameInfo>;
     // admin
     fn set_minting_paused(ref self: TState, is_paused: bool);
     fn update_token_metadata(ref self: TState, token_id: u256);
@@ -310,6 +312,20 @@ pub mod game_token {
             (world.read_model(game_id))
         }
 
+        fn get_games_info(self: @ContractState, mut game_id: u128, count: usize) -> Array<GameInfo> {
+            let world: WorldStorage = self.world_default();
+            let supply: u128 = self.total_supply().low;
+            // games to fetch...
+            let mut result: Array<GameInfo> = array![];
+            for _ in 0..count {
+                if (game_id > supply) {
+                    break;
+                }
+                result.append(world.read_model(game_id));
+                game_id += 1;
+            };
+            (result)
+        }
 
         //-----------------------------------
         // admin
