@@ -1,7 +1,81 @@
 import { useEffect, useMemo, useState } from 'react'
+import { create } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
 import { BigNumberish } from 'starknet'
 import { lookupAddresses } from '@cartridge/controller'
-import { bigintToHex, isPositiveBigint } from '../utils/types'
+import { bigintToAddress, bigintToHex, isPositiveBigint } from '../utils/types'
+
+// interface Names {
+//   controllerName?: string
+//   starkName?: string
+//   ensName?: string
+//   displayName?: string
+// }
+// interface NamesByAddress {
+//   [address: string]: Names
+// }
+// interface State {
+//   data: NamesByAddress,
+//   updateControllerNames: (addressToNames: Map<string, string>) => void;
+//   getDisplayNameFromAddress: (address: BigNumberish) => string | null;
+//   getAddressFromName: (name: string) => BigNumberish | null;
+// }
+
+// const _key = (address: BigNumberish | undefined): string | null => (
+//   isPositiveBigint(address) ? bigintToAddress(address) : null
+// )
+
+// const createStore = () => {
+//   const _updateNames = (state: State, address: BigNumberish, names: Names) => {
+//     const key = _key(address);
+//     state.data[key] = {
+//       ...(state.data[key] ?? {}),
+//       ...names,
+//     };
+//     state.data[key].displayName =
+//       state.data[key].ensName ??
+//       state.data[key].starkName ??
+//       state.data[key].controllerName ??
+//       null;
+//   }
+//   return create<State>()(immer((set, get) => ({
+//     data: {},
+//     initializeAddresses: (addresses: BigNumberish[]) => {
+//       set((state: State) => {
+//         addresses.forEach((address: BigNumberish) => {
+//           _updateNames(state, address, {})
+//         })
+//       });
+//     },
+//     updateControllerNames: (addressToNames: Map<string, string>) => {
+//       // console.log("updateControllerNames() =>", addressToNames)
+//       set((state: State) => {
+//         addressToNames.forEach((name: string, address: string) => {
+//           _updateNames(state, address, {
+//             controllerName: name ? `${name}.ctrl` : null,
+//           })
+//         })
+//       });
+//     },
+//     getDisplayNameFromAddress: (address: BigNumberish): string | null => {
+//       const key = _key(address);
+//       return get().data[key]?.displayName;
+//     },
+//     getAddressFromName: (name: string): BigNumberish | null => {
+//       const data = get().data;
+//       const key = Object.keys(data).find((key) => (
+//         name === data[key]?.ensName ||
+//         name === data[key]?.starkName ||
+//         name === data[key]?.controllerName ||
+//         `${name}.ctrl` === data[key]?.controllerName
+//       ));
+//       return key ?? null;
+//     },
+//   })))
+// }
+
+// export const useNameStore = createStore();
+
 
 export function useControllerUsername(address: BigNumberish) {
   const { usernames, isLoading } = useControllerUsernames(address)
@@ -11,7 +85,7 @@ export function useControllerUsername(address: BigNumberish) {
     }
     const username = usernames.get(bigintToHex(address))
     return {
-      username: username ?? 'Unknown',
+      username: username ?? '...',
       exists: username !== undefined,
     }
   }, [usernames, isLoading])

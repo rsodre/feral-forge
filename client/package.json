@@ -28,7 +28,8 @@
     "react-dom": "^19.1.1",
     "react-router": "^7.9.5",
     "starknet": "^8.5.4",
-    "vite-plugin-mkcert": "^1.17.9"
+    "vite-plugin-mkcert": "^1.17.9",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
