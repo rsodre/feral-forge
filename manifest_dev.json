@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x33c71814820f0fdb8e9f890749fc9698096aa6dc3c5f60aeb0f16ff4b30707f",
-    "address": "0x3b6f87f3ee07a25d8925629305eb63e094dc57d1ac974b698db29e66036fd62",
-    "seed": "feral",
+    "address": "0x2098ea5abf3d4e6cd95df962c58ab746d9a7fd67a47cada710ea2e491354cd2",
+    "seed": "feral_beta",
     "name": "Feral Forge",
     "entrypoints": [
       "uuid",
@@ -1490,8 +1490,8 @@
   },
   "contracts": [
     {
-      "address": "0x79795d13481b6ec6fb86484a58ebc4cdbbc814546f9bafa0b75f528cdeab254",
-      "class_hash": "0x262a6e7456748a41e56811a012a6665fd52c7be6239070848348378dad22f0f",
+      "address": "0x4c9d641499b4f670b434f3089340546d8910a926b969652bb7d58f5a692f774",
+      "class_hash": "0x648ea0234ceff9d330d8c2da0785f02a8ef38333876955e1668be865cd184cd",
       "abi": [
         {
           "type": "impl",
@@ -1831,6 +1831,26 @@
               "outputs": [
                 {
                   "type": "feral::models::game_info::GameInfo"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "get_games_info",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u128"
+                },
+                {
+                  "name": "count",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::array::Array::<feral::models::game_info::GameInfo>"
                 }
               ],
               "state_mutability": "view"

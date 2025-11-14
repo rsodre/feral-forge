@@ -127,6 +127,23 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_game_token_getGamesInfo_calldata = (gameId: BigNumberish, count: BigNumberish): DojoCall => {
+		return {
+			contractName: "game_token",
+			entrypoint: "get_games_info",
+			calldata: [gameId, count],
+		};
+	};
+
+	const game_token_getGamesInfo = async (gameId: BigNumberish, count: BigNumberish) => {
+		try {
+			return await provider.call("feral", build_game_token_getGamesInfo_calldata(gameId, count));
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_game_token_isApprovedForAll_calldata = (owner: string, operator: string): DojoCall => {
 		return {
 			contractName: "game_token",
@@ -657,6 +674,8 @@ export function setupWorld(provider: DojoProvider) {
 			buildGetApprovedCalldata: build_game_token_getApproved_calldata,
 			getGameInfo: game_token_getGameInfo,
 			buildGetGameInfoCalldata: build_game_token_getGameInfo_calldata,
+			getGamesInfo: game_token_getGamesInfo,
+			buildGetGamesInfoCalldata: build_game_token_getGamesInfo_calldata,
 			isApprovedForAll: game_token_isApprovedForAll,
 			buildIsApprovedForAllCalldata: build_game_token_isApprovedForAll_calldata,
 			isMintedOut: game_token_isMintedOut,

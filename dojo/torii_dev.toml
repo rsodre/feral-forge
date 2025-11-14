@@ -23,5 +23,5 @@ transactions = true
 controllers = true
 pending = true
 contracts = [
-  "erc721:0x79795d13481b6ec6fb86484a58ebc4cdbbc814546f9bafa0b75f528cdeab254", # game_token
+  "erc721:0x4c9d641499b4f670b434f3089340546d8910a926b969652bb7d58f5a692f774", # game_token
 ]
