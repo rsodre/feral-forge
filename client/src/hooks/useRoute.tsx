@@ -9,6 +9,7 @@ export const useRoute = () => {
     pathname: location.pathname,
     slugs: {
       game_id: params['game_id'],
+      page_num: params['page_num'],
     },
   }
 }

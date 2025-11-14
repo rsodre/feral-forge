@@ -34,7 +34,7 @@ export default function MainPage() {
 
           <Separator my="4" style={{ opacity: 0 }} />
 
-          <MenuButton onClick={() => navigate('/games')} disabled={!isConnected}>Play</MenuButton>
+          <MenuButton onClick={() => navigate('/games/1')} disabled={!isConnected}>Play</MenuButton>
           <ConnectButton /> 
           <MenuButton onClick={() => navigate('/help')}>How to Play</MenuButton>
         </Flex>

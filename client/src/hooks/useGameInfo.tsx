@@ -23,3 +23,24 @@ export function useGameInfo(gameId: number) {
     gameInfo,
   }
 }
+
+export function useGamesInfo(gameId: number, count: number) {
+  const { client } = useDojoSDK<() => any, SchemaType>();
+  const { isConnected } = useAccount();
+
+  const [gamesInfo, setGamesInfo] = useState<GameInfo[]>();
+  useEffect(() => {
+    if (client && isConnected && gameId > 0) {
+      // console.log('gamesInfo...', gameId, count);
+      client.game_token.getGamesInfo(gameId, count).then((gamesInfo: GameInfo[]) => {
+        setGamesInfo(gamesInfo);
+        // console.log('gamesInfo >>>', gamesInfo);
+      });
+    }
+  }, [client, isConnected, gameId, count]);
+
+
+  return {
+    gamesInfo,
+  }
+}
