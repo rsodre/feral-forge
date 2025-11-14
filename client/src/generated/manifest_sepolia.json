@@ -1491,7 +1491,7 @@
   "contracts": [
     {
       "address": "0x1394f7b766ac2eeac7aea6323964e701207925a7f76351d4a770b428f5a6c10",
-      "class_hash": "0x7913aad1dd11705a7b61871b46ed56a2a601b41b0ecacb292399b23e6974980",
+      "class_hash": "0x648ea0234ceff9d330d8c2da0785f02a8ef38333876955e1668be865cd184cd",
       "abi": [
         {
           "type": "impl",
@@ -1831,6 +1831,26 @@
               "outputs": [
                 {
                   "type": "feral::models::game_info::GameInfo"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "get_games_info",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u128"
+                },
+                {
+                  "name": "count",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::array::Array::<feral::models::game_info::GameInfo>"
                 }
               ],
               "state_mutability": "view"
