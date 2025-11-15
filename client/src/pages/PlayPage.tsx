@@ -23,6 +23,7 @@ export default function PlayPage() {
 
   const { gameInfo } = useGameInfo(gameId);
   const { username: topScoreUsername } = useControllerUsername(gameInfo?.top_score_address ?? '');
+  const { username: minterUsername } = useControllerUsername(gameInfo?.minter_address ?? '');
 
   const [currentGameState, setCurrentGameState] = useState<ParsedGameState>();
   const { initialGameState } = useGameStart(gameId);
@@ -102,12 +103,16 @@ export default function PlayPage() {
             Forge #{game_id ?? '??'}
           </Heading>
 
-          {(gameInfo && BigInt(gameInfo?.top_score) > 0n) &&
-            <Text size="1">
-              High Score: <Strong>{gameInfo?.top_score ?? '...'}</Strong> by <Strong>{topScoreUsername ?? '...'}</Strong>
-            </Text>
-          }
-          
+          {gameInfo && (
+            BigInt(gameInfo?.top_score) > 0n ?
+              <Text size="1">
+                High Score: <Strong>{gameInfo?.top_score ?? '...'}</Strong> by <Strong>{topScoreUsername ?? '...'}</Strong>
+              </Text>
+              : <Text size="1">
+                Forged by <Strong>{minterUsername ?? '...'}</Strong>
+              </Text>
+          )}
+
           <GameBoard gameState={currentGameState} />
 
           <Flex direction="row" align="center" gapX="4">

@@ -12,7 +12,7 @@ import { GameInfo } from '../generated/models.gen';
 import { TopMenu } from '../components/TopMenu';
 import App from '../components/App';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 12;
 
 export default function GamesPage() {
   const navigate = useNavigate()
@@ -77,7 +77,7 @@ export default function GamesPage() {
             <GamesRow>
               <Text><Strong>Game</Strong></Text>
               <Text><Strong>Forger</Strong></Text>
-              <Text><Strong>Holder</Strong></Text>
+              <Text><Strong>High Score</Strong></Text>
               <Text><Strong>Score</Strong></Text>
               <Text></Text>
             </GamesRow>
@@ -121,7 +121,7 @@ function GameRow({
     <ButtonRow onClick={_play}>
       <Text size="1" color="gray">{gameInfo ? <Strong>Forge #{Number(gameInfo.game_id)}</Strong> : <Spinner />}</Text>
       <Text size="1" color="gray">{forgerName || <Spinner />}</Text>
-      <Text size="1" color="gray">{topPlayerName || <Spinner />}</Text>
+      <Text size="1" color="gray"><Strong>{topPlayerName || <Spinner />}</Strong></Text>
       <Text size="1" color="gray">{gameInfo ? <Strong>{Number(gameInfo.top_score)}</Strong> : <Spinner />}</Text>
     </ButtonRow>
   )

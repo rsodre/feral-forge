@@ -1,6 +1,8 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useAccount } from '@starknet-react/core';
 import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useWaitForMint } from '../hooks/useWaitForMint';
 import { SchemaType } from '../generated/models.gen';
 import { MenuButton } from './Buttons';
 import { ConnectButton } from './ConnectButton';
@@ -14,7 +16,8 @@ export function MintGameButton({
   disabled?: boolean;
   children: string;
 }) {
-  const { client } = useDojoSDK<() => any, SchemaType>();
+  const navigate = useNavigate();
+  const { client , config } = useDojoSDK<() => any, SchemaType>();
   const { account, address, isConnected } = useAccount();
 
   const [minting, setMinting] = useState<boolean>(false);
@@ -33,12 +36,20 @@ export function MintGameButton({
     }
   }, [client, account]);
 
+  // const { data } = useDojoEvent('game_token', 'Transfer', minting || minted);
+  const { mintedGameId } = useWaitForMint(minting || minted);
+  useEffect(() => {
+    if (minted && mintedGameId) {
+      navigate(`/play/${mintedGameId}`);
+    }
+  }, [minted, mintedGameId, navigate]);
+
   const label = useMemo(() => {
     if (minting) {
       return "Minting...";
     }
     if (minted) {
-      return "Minted! (see above)";
+      return "Confirming...";
     }
     return children;
   }, [minting, minted, children]);
