@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useAccount } from '@starknet-react/core';
 import { Flex, Button, Heading, Separator, Grid, Box, Text, Strong, Spinner } from '@radix-ui/themes'
 import { DoubleArrowDownIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
 import { useControllerUsername } from '../stores/controllerNameStore';
@@ -21,7 +20,6 @@ export default function PlayPage() {
   const navigate = useNavigate()
   const { game_id } = useRouteSlugs()
   const gameId = useMemo(() => Number(game_id ?? 0), [game_id]);
-  const { account, address, isConnected } = useAccount();
 
   const { gameInfo } = useGameInfo(gameId);
   const { username: topScoreUsername } = useControllerUsername(gameInfo?.top_score_address ?? '');
@@ -43,12 +41,11 @@ export default function PlayPage() {
   }, [movedGameState]);
 
   const canMove = useMemo(() => (
-    isConnected &&
     gameId &&
     !isMoving &&
     initialGameState &&
     currentGameState?.originalGameState
-  ), [isMoving, isConnected, initialGameState, gameId, currentGameState]);
+  ), [isMoving, initialGameState, gameId, currentGameState]);
 
   const _move = useCallback((direction: MoveDirection) => {
     if (canMove && currentGameState?.originalGameState) {

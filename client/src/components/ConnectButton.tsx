@@ -5,10 +5,12 @@ import { MenuButton } from './Buttons';
 
 export function ConnectButton({
   size = '3',
+  children,
 }: {
   size?: '1' | '2' | '3';
+  children?: React.ReactNode;
 }) {
-  const { account, address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const { connectAsync, connectors } = useConnect();
 
   const _connect = useCallback(async () => {
@@ -31,6 +33,6 @@ export function ConnectButton({
   }
 
   return (
-    <MenuButton size={size} onClick={_connect} disabled={isConnected}>Connect</MenuButton>
+    <MenuButton size={size} onClick={_connect} disabled={isConnected}>{children ?? 'Connect'}</MenuButton>
   )
 }

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Box, Code, Flex, Heading, Separator, Text } from '@radix-ui/themes'
 import { useAccount } from '@starknet-react/core';
 import { useTotalSupply } from '../hooks/useTotalSupply';
@@ -39,8 +39,8 @@ export default function MainPage() {
 
           <Separator my="3" style={{ opacity: 0 }} />
 
-          <MenuButton onClick={() => navigate(`/play/${randomGameId}`)} disabled={!isConnected}>Quick Game</MenuButton>
-          <MenuButton onClick={() => navigate('/games/1')} disabled={!isConnected}>Select Level</MenuButton>
+          <MenuButton onClick={() => navigate(`/play/${randomGameId}`)} >Quick Game</MenuButton>
+          <MenuButton onClick={() => navigate('/games/1')}>Select Level</MenuButton>
           <MenuButton onClick={() => navigate('/help')}>How to Play</MenuButton>
           <MenuButton onClick={() => navigate('/about')}>About</MenuButton>
           <ConnectButton />

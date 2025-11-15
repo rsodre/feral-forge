@@ -4,6 +4,7 @@ import { useDojoSDK } from '@dojoengine/sdk/react';
 import { SchemaType } from '../generated/models.gen';
 import { directionToCairoCustomEnum, MoveDirection } from '../data/types';
 import { MenuButton } from './Buttons';
+import { ConnectButton } from './ConnectButton';
 
 export function SubmitScoreButton({
   gameId,
@@ -35,7 +36,11 @@ export function SubmitScoreButton({
     }
   }, [client, account, gameId, movesHistory]);
 
+  if (!isConnected) {
+    return <ConnectButton>Connect to Claim!</ConnectButton>
+  }
+
   return (
-    <MenuButton onClick={_submit} disabled={disabled || !isConnected || submitting || submitted}>Submit your Game!!!</MenuButton>
+    <MenuButton onClick={_submit} disabled={disabled || !isConnected || submitting || submitted}>Submit your Game!</MenuButton>
   )
 }

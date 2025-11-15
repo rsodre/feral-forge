@@ -3,6 +3,7 @@ import { useAccount } from '@starknet-react/core';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { SchemaType } from '../generated/models.gen';
 import { MenuButton } from './Buttons';
+import { ConnectButton } from './ConnectButton';
 
 export function MintGameButton({
   onMint,
@@ -41,6 +42,10 @@ export function MintGameButton({
     }
     return children;
   }, [minting, minted, children]);
+
+  if (!isConnected) {
+    return <ConnectButton>{label}</ConnectButton>
+  }
 
   return (
     <MenuButton onClick={_mint} disabled={disabled || !isConnected || minting || minted}>{label}</MenuButton>

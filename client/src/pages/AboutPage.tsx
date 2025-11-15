@@ -1,19 +1,13 @@
-import { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Code, Flex, Heading, Separator, Strong, Text } from '@radix-ui/themes'
-import { useAccount } from '@starknet-react/core';
 import { useTotalSupply } from '../hooks/useTotalSupply';
-import { ConnectButton } from '../components/ConnectButton';
 import { MenuButton } from '../components/Buttons';
 import { TopMenu } from '../components/TopMenu';
 import App from '../components/App';
 
 export default function AboutPage() {
   const navigate = useNavigate()
-  const { account, address, isConnected } = useAccount();
   const { totalSupply } = useTotalSupply();
-
-  const randomGameId = useMemo(() => Math.floor(Math.random() * (totalSupply - 1)) + 1, [totalSupply]);
 
   return (
     <App bg='home'>

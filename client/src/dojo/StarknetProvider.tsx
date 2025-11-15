@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import { cartridge, jsonRpcProvider, StarknetConfig } from "@starknet-react/core";
+import { cartridge, cartridgeProvider, jsonRpcProvider, StarknetConfig } from "@starknet-react/core";
 import { Chain } from "@starknet-react/chains";
 import { profileConfig } from "./dojoConfig";
 import { SessionPolicies } from '@cartridge/presets';
@@ -21,7 +21,7 @@ const controller = new ControllerConnector({
 console.log(`--- Controller options:`, controller);
 
 function rpc(chain: Chain) {
-  const nodeUrl = chain.rpcUrls.default.http[0]
+  const nodeUrl = chain.rpcUrls.default.http[0] ?? profileConfig.rpcUrl;
   return {
     nodeUrl,
   }
@@ -38,7 +38,6 @@ export default function StarknetProvider({ children }: PropsWithChildren) {
       explorer={cartridge}
       autoConnect
     >
-      {/* @ts-ignore react version mismatch */}
       {children}
     </StarknetConfig>
   );
