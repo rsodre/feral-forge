@@ -129,7 +129,7 @@ h1 {
   /* animation-timing-function: linear; */
 }
 .AppGame {
-  background-image: url('/images/bg1.jpg');
+  background-image: url('/images/bg2.jpg');
 }
 @keyframes bg-animate {
   0% {background-position: center;}
