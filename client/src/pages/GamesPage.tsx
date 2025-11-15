@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Text, Strong, Grid, Spinner } from '@radix-ui/themes'
+import { Flex, Button, Heading, Text, Strong, Grid, Spinner, Box } from '@radix-ui/themes'
 import { useControllerUsername } from '../hooks/useControllerUsername';
 import { useTotalSupply } from '../hooks/useTotalSupply';
 import { useGamesInfo } from '../hooks/useGameInfo';
@@ -45,7 +45,7 @@ export default function GamesPage() {
           padding: '0',
         }}
       >
-        <Flex direction="column" align="center" gap="4" style={{
+        <Flex direction="column" align="center" gapX="0" gapY="4" style={{
           width: '100%',
           textAlign: 'center',
           padding: '2rem',
@@ -60,14 +60,16 @@ export default function GamesPage() {
             <Strong>Top Players</Strong> own the games!
           </Text>
 
-          <Grid columns="5" gap="2" align="center" justify="center">
-            <Text><Strong>Game</Strong></Text>
-            <Text><Strong>Forger</Strong></Text>
-            <Text><Strong>Holder</Strong></Text>
-            <Text><Strong>Score</Strong></Text>
-            <Text></Text>
+          <Flex direction="column" align="center" gap="2" style={{ width: '100%', maxWidth: '450px' }}>
+            <GamesRow>
+              <Text><Strong>Game</Strong></Text>
+              <Text><Strong>Forger</Strong></Text>
+              <Text><Strong>Holder</Strong></Text>
+              <Text><Strong>Score</Strong></Text>
+              <Text></Text>
+            </GamesRow>
             {items}
-          </Grid>
+          </Flex>
 
           <MintGameButton onMint={_minted}>Forge a New Game</MintGameButton>
 
@@ -92,12 +94,53 @@ function GameRow({
   }, []);
 
   return (
-    <React.Fragment>
+    <ButtonRow onClick={_play}>
       <Text size="1">Forge #{Number(gameInfo.game_id) ?? <Spinner />}</Text>
       <Text size="1">{forgerName || <Spinner />}</Text>
       <Text size="1">{topPlayerName || <Spinner />}</Text>
       <Text size="1">{gameInfo ? Number(gameInfo.top_score) : <Spinner />}</Text>
-      <Button size="1" onClick={_play}>Play</Button>
-    </React.Fragment>
+    </ButtonRow>
   )
 }
+
+
+function ButtonRow({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: React.ReactNode[];
+}) {
+
+  return (
+    <Button size="1" variant="soft" onClick={onClick} style={{ width: '100%' }}>
+      <GamesRow>
+        {children}
+      </GamesRow>
+    </Button>
+  )
+}
+
+
+function GamesRow({
+  children,
+}: {
+  children: React.ReactNode[];
+}) {
+  const widths = ['30%', '30%', '30%', '15%'];
+
+  return (
+    <Flex direction="row" align="center" gap="2" width="100%">
+      <Box style={{ flex: '1' }}></Box>
+      {children.map((child, index) => (
+        <Flex key={index} align="center" justify="center"
+          width={widths[index]}
+        >
+          {child}
+        </Flex>
+      ))}
+      <Box style={{ flex: '1' }}></Box>
+    </Flex>
+  )
+}
+{/* <Grid columns="5" gap="2" align="center" justify="center"> */}
