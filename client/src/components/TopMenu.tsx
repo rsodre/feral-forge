@@ -19,6 +19,9 @@ export function TopMenu() {
     <MenuButton size='2' onClick={() => navigate('/help')}>
       How To Play
     </MenuButton>,
+    <MenuButton size='2' onClick={() => navigate('/about')}>
+      About
+    </MenuButton>,
     <ConnectButton size='2' />,
   ], []);
 

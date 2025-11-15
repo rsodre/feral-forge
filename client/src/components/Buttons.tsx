@@ -12,6 +12,6 @@ export function MenuButton({
   children: React.ReactNode | string;
 }) {
   return (
-    <Button size={size} style={{ width: '200px' }} onClick={onClick} disabled={disabled}>{children}</Button>
+    <Button variant='surface' size={size} style={{ width: '200px' }} onClick={onClick} disabled={disabled}>{children}</Button>
   )
 }

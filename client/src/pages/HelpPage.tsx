@@ -57,19 +57,19 @@ export default function HelpPage() {
     </Flex>,
 
     <Flex align="center" justify="center">
-      <BeastImage beastId={68} size='small' label={_score('T4')} displayTier />
+      <BeastImage beastId={45} size='small' label={_score('T4')} displayTier />
       <PlusIcon />
-      <BeastImage beastId={68} size='small' label={_score('T4')} displayTier />
+      <BeastImage beastId={45} size='small' label={_score('T4')} displayTier />
       <ArrowRightIcon />
-      <BeastImage beastId={168} size='small' label={_score('S4')} displayTier />
+      <BeastImage beastId={145} size='small' label={_score('S4')} displayTier />
     </Flex>,
 
     <Flex align="center" justify="center">
-      <BeastImage beastId={15} size='small' label={_score('T3')} displayTier />
+      <BeastImage beastId={40} size='small' label={_score('T3')} displayTier />
       <PlusIcon />
-      <BeastImage beastId={15} size='small' label={_score('T3')} displayTier />
+      <BeastImage beastId={40} size='small' label={_score('T3')} displayTier />
       <ArrowRightIcon />
-      <BeastImage beastId={115} size='small' label={_score('S3')} displayTier />
+      <BeastImage beastId={140} size='small' label={_score('S3')} displayTier />
     </Flex>,
 
     <Flex align="center" justify="center">
@@ -160,6 +160,8 @@ export default function HelpPage() {
             <br />
             <Strong>Shinies</Strong> score even more!
           </Text>
+
+          <Separator my="1" style={{ opacity: 0 }} />
 
           <MenuButton onClick={() => navigate('/')}>Back</MenuButton>
         </Flex>

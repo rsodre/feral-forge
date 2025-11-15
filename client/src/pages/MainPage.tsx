@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router';
-import { Flex, Heading, Separator } from '@radix-ui/themes'
+import { Link, useNavigate } from 'react-router';
+import { Box, Code, Flex, Heading, Separator, Text } from '@radix-ui/themes'
 import { useAccount } from '@starknet-react/core';
 import { useTotalSupply } from '../hooks/useTotalSupply';
 import { ConnectButton } from '../components/ConnectButton';
@@ -37,12 +37,26 @@ export default function MainPage() {
             Feral Forge
           </Heading>
 
-          <Separator my="4" style={{ opacity: 0 }} />
+          <Separator my="3" style={{ opacity: 0 }} />
 
           <MenuButton onClick={() => navigate(`/play/${randomGameId}`)} disabled={!isConnected}>Quick Game</MenuButton>
           <MenuButton onClick={() => navigate('/games/1')} disabled={!isConnected}>Select Level</MenuButton>
-          <ConnectButton /> 
           <MenuButton onClick={() => navigate('/help')}>How to Play</MenuButton>
+          <MenuButton onClick={() => navigate('/about')}>About</MenuButton>
+          <ConnectButton />
+
+          <Separator my="1" style={{ opacity: 0 }} />
+
+          <Box>
+            <Code size="2">
+              <a className="Code Anchor" href="https://x.com/matalecode">@matalecode</a>
+            </Code>
+            {' | '}
+            <Code size="2">
+              <a className="Code Anchor" href="https://x.com/underware_gg">@underware_gg</a>
+            </Code>
+          </Box>
+
         </Flex>
       </Flex>
     </App>

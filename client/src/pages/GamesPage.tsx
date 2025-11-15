@@ -86,10 +86,10 @@ export default function GamesPage() {
 
           <Flex direction="column" align="center" gap="2" style={{ width: '100%', maxWidth: '450px' }}>
             <Grid columns="4" gap="2" width="100%">
-              <Button variant="soft" onClick={() => navigate(`/games/${firstPage}`)} disabled={!firstPage}><DoubleArrowLeftIcon /></Button>
-              <Button variant="soft" onClick={() => navigate(`/games/${prevPage}`)} disabled={!prevPage}><ChevronLeftIcon /></Button>
-              <Button variant="soft" onClick={() => navigate(`/games/${nextPage}`)} disabled={!nextPage}><ChevronRightIcon /></Button>
-              <Button variant="soft" onClick={() => navigate(`/games/${lastPage}`)} disabled={!lastPage}><DoubleArrowRightIcon /></Button>
+              <Button variant="surface" onClick={() => navigate(`/games/${firstPage}`)} disabled={!firstPage}><DoubleArrowLeftIcon /></Button>
+              <Button variant="surface" onClick={() => navigate(`/games/${prevPage}`)} disabled={!prevPage}><ChevronLeftIcon /></Button>
+              <Button variant="surface" onClick={() => navigate(`/games/${nextPage}`)} disabled={!nextPage}><ChevronRightIcon /></Button>
+              <Button variant="surface" onClick={() => navigate(`/games/${lastPage}`)} disabled={!lastPage}><DoubleArrowRightIcon /></Button>
             </Grid>
           </Flex>
 

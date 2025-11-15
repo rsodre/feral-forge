@@ -122,7 +122,7 @@ export default function PlayPage() {
             </Text>
           </Flex>
 
-          {/* <Separator my="4" style={{ opacity: 0 }} /> */}
+          {/* <Separator my="2" style={{ opacity: 0 }} /> */}
 
           {!finishedGame &&
             <Grid columns="3" gap="1" width="200px" height="200px">
