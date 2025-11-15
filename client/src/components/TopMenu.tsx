@@ -13,8 +13,8 @@ export function TopMenu() {
     <MenuButton size='2' onClick={() => navigate('/')}>
       Home
     </MenuButton>,
-    <MenuButton size='2' onClick={() => navigate('/games')}>
-      Play
+    <MenuButton size='2' onClick={() => navigate('/games/1')}>
+      Select Level
     </MenuButton>,
     <MenuButton size='2' onClick={() => navigate('/help')}>
       How To Play

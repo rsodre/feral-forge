@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Separator, Grid, Box, Text, Strong } from '@radix-ui/themes'
-import { DoubleArrowDownIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
 import { useAccount } from '@starknet-react/core';
+import { Flex, Button, Heading, Separator, Grid, Box, Text, Strong, Spinner } from '@radix-ui/themes'
+import { DoubleArrowDownIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
+import { useControllerUsername } from '../stores/controllerNameStore';
 import { useRouteSlugs } from '../hooks/useRoute';
+import { useGameInfo } from '../hooks/useGameInfo';
 import { useGameStart } from '../hooks/useGameStart';
 import { useGameMove } from '../hooks/useGameMove';
 import { GameBoard } from '../components/GameBoard';
@@ -20,6 +22,9 @@ export default function PlayPage() {
   const { game_id } = useRouteSlugs()
   const gameId = useMemo(() => Number(game_id ?? 0), [game_id]);
   const { account, address, isConnected } = useAccount();
+
+  const { gameInfo } = useGameInfo(gameId);
+  const { username: topScoreUsername } = useControllerUsername(gameInfo?.top_score_address ?? '');
 
   const [currentGameState, setCurrentGameState] = useState<ParsedGameState>();
   const { initialGameState } = useGameStart(gameId);
@@ -61,6 +66,19 @@ export default function PlayPage() {
     setSubmitted(true);
   }, []);
 
+  const { finishedGame, isNewTopScore } = useMemo(() => {
+    const finishedGame = Boolean(currentGameState?.finished);
+    const scoreDiff = Number(currentGameState?.score ?? 0) - Number(gameInfo?.top_score ?? 0);
+    const movesDiff = Number(currentGameState?.move_count ?? 0) - Number(gameInfo?.top_score_move_count ?? 0);
+    const isNewTopScore = finishedGame && (
+      (scoreDiff > 0) || (scoreDiff == 0 && movesDiff < 0)
+    );
+    return {
+      finishedGame,
+      isNewTopScore,
+    }
+  }, [currentGameState, gameInfo]);
+
   return (
     <App bg='game'>
       <TopMenu />
@@ -87,6 +105,12 @@ export default function PlayPage() {
             Forge #{game_id ?? '??'}
           </Heading>
 
+          {(gameInfo && BigInt(gameInfo?.top_score) > 0n) &&
+            <Text size="1">
+              High Score: <Strong>{gameInfo?.top_score ?? '...'}</Strong> by <Strong>{topScoreUsername ?? '...'}</Strong>
+            </Text>
+          }
+          
           <GameBoard gameState={currentGameState} />
 
           <Flex direction="row" align="center" gapX="4">
@@ -100,7 +124,7 @@ export default function PlayPage() {
 
           {/* <Separator my="4" style={{ opacity: 0 }} /> */}
 
-          {!currentGameState?.finished &&
+          {!finishedGame &&
             <Grid columns="3" gap="1" width="200px" height="200px">
               <Box />
               <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Up)} >
@@ -125,12 +149,15 @@ export default function PlayPage() {
             </Grid>
           }
 
-          {currentGameState?.finished && !submitted &&
+          {finishedGame && !submitted &&
             <>
               <Heading size="4" weight="bold">
-                Game Over!
+                {isNewTopScore ? 'New High Score!' : 'Game Over!'}
               </Heading>
-              <SubmitScoreButton gameId={gameId} movesHistory={movesHistory} onSubmitted={_submitted} />
+              {isNewTopScore ?
+                <SubmitScoreButton gameId={gameId} movesHistory={movesHistory} onSubmitted={_submitted} />
+                : <MenuButton onClick={() => window.location.reload()}>Replay level</MenuButton>
+              }
               <MenuButton onClick={() => navigate('/')}>Back</MenuButton>
             </>
           }

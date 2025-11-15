@@ -1,14 +1,19 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { Flex, Heading, Separator } from '@radix-ui/themes'
 import { useAccount } from '@starknet-react/core';
+import { useTotalSupply } from '../hooks/useTotalSupply';
 import { ConnectButton } from '../components/ConnectButton';
 import { MenuButton } from '../components/Buttons';
 import { TopMenu } from '../components/TopMenu';
 import App from '../components/App';
 
 export default function MainPage() {
-  const { account, address, isConnected } = useAccount();
   const navigate = useNavigate()
+  const { account, address, isConnected } = useAccount();
+  const { totalSupply } = useTotalSupply();
+
+  const randomGameId = useMemo(() => Math.floor(Math.random() * (totalSupply - 1)) + 1, [totalSupply]);
 
   return (
     <App bg='home'>
@@ -34,7 +39,8 @@ export default function MainPage() {
 
           <Separator my="4" style={{ opacity: 0 }} />
 
-          <MenuButton onClick={() => navigate('/games/1')} disabled={!isConnected}>Play</MenuButton>
+          <MenuButton onClick={() => navigate(`/play/${randomGameId}`)} disabled={!isConnected}>Quick Game</MenuButton>
+          <MenuButton onClick={() => navigate('/games/1')} disabled={!isConnected}>Select Level</MenuButton>
           <ConnectButton /> 
           <MenuButton onClick={() => navigate('/help')}>How to Play</MenuButton>
         </Flex>
