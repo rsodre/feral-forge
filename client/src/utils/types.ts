@@ -49,7 +49,7 @@ export const bigintSub = (a: BigNumberish | null, b: BigNumberish | null): bigin
 export const isBigint = (v: any | null): boolean => {
   try { return (v != null && BigInt(v) >= 0n) } catch { return false }
 }
-export const isPositiveBigint = (v: BigNumberish | null): boolean => {
+export const isPositiveBigint = (v: BigNumberish | null | undefined): boolean => {
   try { return (v != null && BigInt(v) > 0n) } catch { return false }
 }
 export const isNumeric = (v: string | null): boolean => (v != null && /^\d+$/.test(v))

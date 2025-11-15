@@ -1,7 +1,7 @@
 import { Flex, Heading, Spinner } from '@radix-ui/themes'
-import { useGameInfo } from '../hooks/useGameInfo';
-import { useControllerUsername } from '../hooks/useControllerUsername';
 import { useDelay } from './useDelay';
+import { useGameInfo } from '../hooks/useGameInfo';
+import { useControllerUsername } from '../stores/controllerNameStore';
 
 export function GameScore({
   gameId,

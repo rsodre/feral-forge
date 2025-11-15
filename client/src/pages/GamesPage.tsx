@@ -1,8 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Text, Strong, Grid, Spinner, Box } from '@radix-ui/themes'
-import { useControllerUsername } from '../hooks/useControllerUsername';
-import { useTotalSupply } from '../hooks/useTotalSupply';
+import { Flex, Button, Heading, Text, Strong, Spinner, Box } from '@radix-ui/themes'
 import { useGamesInfo } from '../hooks/useGameInfo';
 import { useRouteSlugs } from '../hooks/useRoute';
 import { MintGameButton } from '../components/MintGameButton';
@@ -10,6 +8,7 @@ import { TopMenu } from '../components/TopMenu';
 import { MenuButton } from '../components/Buttons';
 import App from '../components/App';
 import { GameInfo } from '../generated/models.gen';
+import { useControllerUsername } from '../stores/controllerNameStore';
 
 const PAGE_SIZE = 10;
 
@@ -18,13 +17,15 @@ export default function GamesPage() {
   const { page_num } = useRouteSlugs()
   // const { totalSupply } = useTotalSupply(2);
 
-  const startGameId = useMemo(() => {
-    return (Number(page_num ?? 1) - 1) * PAGE_SIZE;
-  }, [page_num]);
+  const startGameId = useMemo(() => ((Number(page_num ?? 1) - 1) * PAGE_SIZE + 1), [page_num]);
   const { gamesInfo } = useGamesInfo(startGameId, PAGE_SIZE);
   const items = useMemo(() => {
     return gamesInfo?.map((gameInfo) => (
       <GameRow key={gameInfo.game_id} gameInfo={gameInfo} />
+    )) ?? Array.from({ length: PAGE_SIZE }, (_, index) => (
+      <GameRow key={index} gameInfo={{
+        game_id: startGameId + index,
+      } as GameInfo} />
     ));
   }, [gamesInfo]);
 
