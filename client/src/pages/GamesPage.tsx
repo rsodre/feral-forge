@@ -1,23 +1,25 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Text, Strong, Spinner, Box } from '@radix-ui/themes'
+import { Flex, Button, Heading, Text, Strong, Spinner, Box, Grid, Separator } from '@radix-ui/themes'
+import { ChevronLeftIcon, ChevronRightIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons';
+import { useControllerUsername } from '../stores/controllerNameStore';
+import { useTotalSupply } from '../hooks/useTotalSupply';
 import { useGamesInfo } from '../hooks/useGameInfo';
 import { useRouteSlugs } from '../hooks/useRoute';
 import { MintGameButton } from '../components/MintGameButton';
-import { TopMenu } from '../components/TopMenu';
 import { MenuButton } from '../components/Buttons';
-import App from '../components/App';
 import { GameInfo } from '../generated/models.gen';
-import { useControllerUsername } from '../stores/controllerNameStore';
+import { TopMenu } from '../components/TopMenu';
+import App from '../components/App';
 
 const PAGE_SIZE = 10;
 
 export default function GamesPage() {
   const navigate = useNavigate()
   const { page_num } = useRouteSlugs()
-  // const { totalSupply } = useTotalSupply(2);
+  const { totalSupply } = useTotalSupply();
 
-  const startGameId = useMemo(() => ((Number(page_num ?? 1) - 1) * PAGE_SIZE + 1), [page_num]);
+  const startGameId = useMemo(() => ((page_num - 1) * PAGE_SIZE + 1), [page_num]);
   const { gamesInfo } = useGamesInfo(startGameId, PAGE_SIZE);
   const items = useMemo(() => {
     return gamesInfo?.map((gameInfo) => (
@@ -28,6 +30,16 @@ export default function GamesPage() {
       } as GameInfo} />
     ));
   }, [gamesInfo]);
+
+  const { firstPage, prevPage, nextPage, lastPage } = useMemo(() => {
+    const lastPage = Math.ceil(totalSupply / PAGE_SIZE);
+    return {
+      firstPage: page_num > 1 ? 1 : 0,
+      prevPage: page_num > 1 ? page_num - 1 : 0,
+      nextPage: page_num < lastPage ? page_num + 1 : 0,
+      lastPage: page_num < lastPage ? lastPage : 0,
+    }
+  }, [page_num, totalSupply]);
 
   const _minted = useCallback((gameId: string) => {
     navigate(`/play/${gameId}`);
@@ -72,6 +84,17 @@ export default function GamesPage() {
             {items}
           </Flex>
 
+          <Flex direction="column" align="center" gap="2" style={{ width: '100%', maxWidth: '450px' }}>
+            <Grid columns="4" gap="2" width="100%">
+              <Button variant="soft" onClick={() => navigate(`/games/${firstPage}`)} disabled={!firstPage}><DoubleArrowLeftIcon /></Button>
+              <Button variant="soft" onClick={() => navigate(`/games/${prevPage}`)} disabled={!prevPage}><ChevronLeftIcon /></Button>
+              <Button variant="soft" onClick={() => navigate(`/games/${nextPage}`)} disabled={!nextPage}><ChevronRightIcon /></Button>
+              <Button variant="soft" onClick={() => navigate(`/games/${lastPage}`)} disabled={!lastPage}><DoubleArrowRightIcon /></Button>
+            </Grid>
+          </Flex>
+
+          <Box />
+
           <MintGameButton onMint={_minted}>Forge a New Game</MintGameButton>
 
           <MenuButton onClick={() => navigate('/')}>Back</MenuButton>
@@ -96,10 +119,10 @@ function GameRow({
 
   return (
     <ButtonRow onClick={_play}>
-      <Text size="1">Forge #{Number(gameInfo.game_id) ?? <Spinner />}</Text>
-      <Text size="1">{forgerName || <Spinner />}</Text>
-      <Text size="1">{topPlayerName || <Spinner />}</Text>
-      <Text size="1">{gameInfo ? Number(gameInfo.top_score) : <Spinner />}</Text>
+      <Text size="1" color="gray">{gameInfo ? <Strong>Forge #{Number(gameInfo.game_id)}</Strong> : <Spinner />}</Text>
+      <Text size="1" color="gray">{forgerName || <Spinner />}</Text>
+      <Text size="1" color="gray">{topPlayerName || <Spinner />}</Text>
+      <Text size="1" color="gray">{gameInfo ? <Strong>{Number(gameInfo.top_score)}</Strong> : <Spinner />}</Text>
     </ButtonRow>
   )
 }
