@@ -4,6 +4,7 @@ import { useTotalSupply } from '../hooks/useTotalSupply';
 import { MenuButton } from '../components/Buttons';
 import { TopMenu } from '../components/TopMenu';
 import App from '../components/App';
+import { PACKAGE_VERSION } from '../data/constants';
 
 export default function AboutPage() {
   const navigate = useNavigate()
@@ -31,7 +32,11 @@ export default function AboutPage() {
             Feral Forge
           </Heading>
 
-          <Separator my="2" style={{ opacity: 0 }} />
+          {/* <Separator my="2" style={{ opacity: 0 }} /> */}
+
+          <Code size="1" variant='ghost' color='gray'>
+            version {PACKAGE_VERSION}
+          </Code>
 
           <Text size="2">
             Developed by <Strong>Mataleone</Strong>

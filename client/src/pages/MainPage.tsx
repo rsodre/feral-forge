@@ -6,6 +6,7 @@ import { useTotalSupply } from '../hooks/useTotalSupply';
 import { ConnectButton } from '../components/ConnectButton';
 import { MenuButton } from '../components/Buttons';
 import { TopMenu } from '../components/TopMenu';
+import { PACKAGE_VERSION } from '../data/constants';
 import App from '../components/App';
 
 export default function MainPage() {
@@ -54,6 +55,10 @@ export default function MainPage() {
             {' | '}
             <Code size="2">
               <a className="Code Anchor" href="https://x.com/underware_gg">@underware_gg</a>
+            </Code>
+            <br />
+            <Code size="1" variant='ghost' color='gray'>
+              v{PACKAGE_VERSION}
             </Code>
           </Box>
 
