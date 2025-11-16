@@ -4,9 +4,6 @@ import { useAccount, useBlockNumber } from '@starknet-react/core';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { WalletAccount } from '../../dojo/wallet-account';
 import { SchemaType } from '../../generated/models.gen';
-// import * as torii from "@dojoengine/torii-wasm";
-// import { getContractByName } from '@dojoengine/core';
-// import manifest from './generated/manifest_dev.json';
 
 export default function MintTestPage() {
   const { sdk, client } = useDojoSDK<() => any, SchemaType>();
