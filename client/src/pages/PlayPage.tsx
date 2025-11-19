@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Flex, Button, Heading, Separator, Grid, Box, Text, Strong, Spinner } from '@radix-ui/themes'
-import { DoubleArrowDownIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
+import { useKeyCombo } from '@rwh/react-keystrokes'
+import { Flex, Button, Heading, Grid, Box, Text, Strong, Kbd } from '@radix-ui/themes'
+import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon } from '@radix-ui/react-icons';
 import { useControllerUsername } from '../stores/controllerNameStore';
 import { useRouteSlugs } from '../hooks/useRoute';
 import { useGameInfo } from '../hooks/useGameInfo';
@@ -42,10 +43,10 @@ export default function PlayPage() {
   }, [movedGameState]);
 
   const canMove = useMemo(() => (
-    gameId &&
+    gameId > 0 &&
     !isMoving &&
-    initialGameState &&
-    currentGameState?.originalGameState
+    Boolean(initialGameState) &&
+    Boolean(currentGameState?.originalGameState)
   ), [isMoving, initialGameState, gameId, currentGameState]);
 
   const _move = useCallback((direction: MoveDirection) => {
@@ -126,30 +127,7 @@ export default function PlayPage() {
 
           {/* <Separator my="2" style={{ opacity: 0 }} /> */}
 
-          {!finishedGame &&
-            <Grid columns="3" gap="1" width="200px" height="200px">
-              <Box />
-              <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Up)} >
-                <DoubleArrowUpIcon />
-              </Button>
-              <Box />
-
-              <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Left)} >
-                <DoubleArrowLeftIcon />
-
-              </Button>
-              <Box />
-              <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Right)} >
-                <DoubleArrowRightIcon />
-              </Button>
-
-              <Box />
-              <Button className='FillParent' disabled={!canMove} onClick={() => _move(MoveDirection.Down)} >
-                <DoubleArrowDownIcon />
-              </Button>
-              <Box />
-            </Grid>
-          }
+          {!finishedGame && <KeyboardControls move={_move} canMove={canMove} />}
 
           {finishedGame && !submitted &&
             <>
@@ -176,4 +154,43 @@ export default function PlayPage() {
       </Flex>
     </App>
   )
+}
+
+
+function KeyboardControls({
+  move,
+  canMove,
+}: {
+  move: (direction: MoveDirection) => void;
+  canMove: boolean;
+}) {
+
+  const isLeftPressed = useKeyCombo('ArrowLeft')
+  const isRightPressed = useKeyCombo('ArrowRight')
+  const isDownPressed = useKeyCombo('ArrowDown')
+  const isUpPressed = useKeyCombo('ArrowUp')
+  useEffect(() => { if (isLeftPressed && canMove) move(MoveDirection.Left); }, [canMove, isLeftPressed, move]);
+  useEffect(() => { if (isRightPressed && canMove) move(MoveDirection.Right); }, [canMove, isRightPressed, move]);
+  useEffect(() => { if (isDownPressed && canMove) move(MoveDirection.Down); }, [canMove, isDownPressed, move]);
+  useEffect(() => { if (isUpPressed && canMove) move(MoveDirection.Up); }, [canMove, isUpPressed, move]);
+
+  return (
+    <Grid columns="3" gap="1" width="180px" height="120px">
+      <Box />
+      <Button className='FillParent' variant='surface' disabled={!canMove} onClick={() => move(MoveDirection.Up)} >
+        <ArrowUpIcon />
+      </Button>
+      <Box />
+
+      <Button className='FillParent' variant='surface' disabled={!canMove} onClick={() => move(MoveDirection.Left)} >
+        <ArrowLeftIcon />
+      </Button>
+      <Button className='FillParent' variant='surface' disabled={!canMove} onClick={() => move(MoveDirection.Down)} >
+        <ArrowDownIcon />
+      </Button>
+      <Button className='FillParent' variant='surface' disabled={!canMove} onClick={() => move(MoveDirection.Right)} >
+        <ArrowRightIcon />
+      </Button>
+    </Grid>
+  );
 }
