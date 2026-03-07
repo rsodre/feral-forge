@@ -164,124 +164,64 @@ pub impl ForgeImpl of ForgeTrait {
 
     //
     // Try to merge a row of 4 tiles
-    // * Collapses from right to left
-    // * Any free space is left to the right
+    // * Collapses toward b_0: compact gaps, then merge adjacent pairs
+    // * Any free space is left at the tail (b_3 side)
     fn _merge_row(ref b_0: u8, ref b_1: u8, ref b_2: u8, ref b_3: u8, ref free: u8, ref seeder: Seeder) {
-        free = 0;
-        let (r_0, r_1, f, merged): (u8, u8, u8, bool) = Self::_merge_pair(b_0, b_1, ref seeder);
-        if (f == 2) {
-            // case [A:0]
-            free = f;
-            // 0,0,?,?
-            // 1st pair is free, not merged
-            let (r_0, r_1, f, _): (u8, u8, u8, bool) = Self::_merge_pair(b_2, b_3, ref seeder);
-            free += f;
-            // x,x,0,0
-            b_0 = r_0;
-            b_1 = r_1;
-            b_2 = 0;
-            b_3 = 0;
-            // finished!
-        } else if (f == 0) {
-            // case [B:]
-            // [x,x],?,?
-            b_0 = r_0;
-            b_1 = r_1;
-            // 1st pair is full, try next pair
-            let (r_0, r_1, f, _): (u8, u8, u8, bool) = Self::_merge_pair(b_1, b_2, ref seeder);
-            // x,[x,x],?
-            b_1 = r_0;
-            if (merged) {
-                // case [B:1]
-                free += f;
-                // x,[x,0],? merged
-                // shift last tile
-                b_2 = b_3;
-                b_3 = 0;
-                if (b_2 == 0) {
-                    free += 1; // shifted tile was free
-                }
-                // finished!
-            } else if (f == 1) {
-                // case [B:2]
-                // x,[x,0],?
-                // try tith last tile
-                let (r_0, r_1, f, _): (u8, u8, u8, bool) = Self::_merge_pair(b_1, b_3, ref seeder);
-                free += f;
-                // x,x,x,?
-                b_1 = r_0;
-                b_2 = r_1;
-                b_3 = 0;
-                free += 1;
-                // finished!
-            } else { // (f == 0)
-                // case [B:3]
-                b_2 = r_1;
-                // x,[x,x],?
-                // try last pair
-                let (r_0, r_1, f, _): (u8, u8, u8, bool) = Self::_merge_pair(b_2, b_3, ref seeder);
-                free += f;
-                // x,x,x,x
-                b_2 = r_0;
-                b_3 = r_1;
-                // finished!
+        // compact: slide all non-zero tiles toward b_0 (no gaps)
+        let (mut a, mut b, mut c, mut d) = Self::_compact(b_0, b_1, b_2, b_3);
+        // merge: one left-to-right pass on adjacent pairs (no re-merge of already-merged tiles)
+        if (Self::_can_merge(a, b)) {
+            a = Self::_do_merge(a, b, ref seeder);
+            if (Self::_can_merge(c, d)) {
+                b = Self::_do_merge(c, d, ref seeder);
+                c = 0;
+            } else {
+                b = c; c = d;
             }
-        } else { // (f_0 == 1)
-            // case [C:]
-            free = f;
-            // x,0,?,?
-            b_0 = r_0;
-            if (merged) {
-                // case [C:1]
-                // 1st pair was merged, try to merge the second pair
-                let (r_0, r_1, f, _): (u8, u8, u8, bool) = Self::_merge_pair(b_2, b_3, ref seeder);
-                free += f;
-                // x,x,x,x
-                b_1 = r_0;
-                b_2 = r_1;
-                b_3 = 0;
-                // finished!
-            } else { // (f == 1)
-                // case [C:2:]
-                // 1 tile shifted, match with the next tile
-                let (r_0, r_1, f, merged): (u8, u8, u8, bool) = Self::_merge_pair(b_0, b_2, ref seeder);
-                free += f;
-                b_0 = r_0;
-                b_1 = r_1;
-                if (merged) {
-                    // case [C:2:1]
-                    // x,?,0,0
-                    // merged shifted b_0 + b_2
-                    b_1 = b_3; // shift the last tile
-                    b_2 = 0;
-                    b_3 = 0;
-                    if (b_1 == 0) {
-                        free += 1; // shifted tile was free
-                    }
-                    // finished!
-                } else if (f == 1) {
-                    // case [C:2:2]
-                    // x,0,0,?
-                    // b_2 was free, try to merge b_0 + b_3
-                    let (r_0, r_1, f, _): (u8, u8, u8, bool) = Self::_merge_pair(b_0, b_3, ref seeder);
-                    free += f;
-                    b_0 = r_0;
-                    b_1 = r_1;
-                    b_2 = 0;
-                    b_3 = 0;
-                    // finished!
-                } else { // (f == 0)
-                    // case [C:2:3]
-                    // x,x,0,?
-                    // shifted b_2, try to merge it with b_3
-                    let (r_0, r_1, f, _): (u8, u8, u8, bool) = Self::_merge_pair(b_1, b_3, ref seeder);
-                    free += f;
-                    b_1 = r_0;
-                    b_2 = r_1;
-                    b_3 = 0;
-                    // finished!
-                }
-            }
+            d = 0;
+        } else if (Self::_can_merge(b, c)) {
+            b = Self::_do_merge(b, c, ref seeder);
+            c = d;
+            d = 0;
+        } else if (Self::_can_merge(c, d)) {
+            c = Self::_do_merge(c, d, ref seeder);
+            d = 0;
+        }
+        b_0 = a; b_1 = b; b_2 = c; b_3 = d;
+        free = Self::_count_free_row(b_0, b_1, b_2, b_3);
+    }
+
+    // Compact: pack all non-zero values toward the front, zeros at the tail
+    fn _compact(i0: u8, i1: u8, i2: u8, i3: u8) -> (u8, u8, u8, u8) {
+        let mut a = i0; let mut b = i1; let mut c = i2; let mut d = i3;
+        if (a == 0) { a = b; b = c; c = d; d = 0; }
+        if (b == 0) { b = c; c = d; d = 0; }
+        if (c == 0) { c = d; d = 0; }
+        if (a == 0) { a = b; b = c; c = d; d = 0; }
+        if (b == 0) { b = c; c = d; d = 0; }
+        (a, b, c, d)
+    }
+
+    // Returns true if two non-shiny beasts of compatible tiers can merge
+    fn _can_merge(a: u8, b: u8) -> bool {
+        if (a == 0 || b == 0) {
+            false
+        } else if (BeastTrait::is_shiny(a) || BeastTrait::is_shiny(b)) {
+            false
+        } else if (a == b) {
+            true // same beast → shiny
+        } else {
+            let t_a: u8 = BeastTrait::to_tier(a);
+            (t_a > 1 && t_a == BeastTrait::to_tier(b)) // same tier (not T1) → higher tier
+        }
+    }
+
+    // Merge two compatible beasts (assumes _can_merge is true)
+    fn _do_merge(a: u8, b: u8, ref seeder: Seeder) -> u8 {
+        if (a == b) {
+            BeastTrait::to_shiny(a)
+        } else {
+            BeastTrait::randomize_beast_of_tier(BeastTrait::to_tier(a) - 1, ref seeder)
         }
     }
 
