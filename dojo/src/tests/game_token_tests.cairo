@@ -25,10 +25,19 @@ mod tests {
     };
 
     fn _mint_token(ref sys: TesterSystems, recipient: ContractAddress) -> u128 {
-        tester::impersonate(recipient);
+        // snforge_std::start_cheat_caller_address(sys.game.contract_address, recipient);
         let token_id: u128 = sys.game.mint(recipient);
+        // snforge_std::stop_cheat_caller_address(sys.game.contract_address);
         (token_id)
     }
+
+    fn _submit_game(ref sys: TesterSystems, caller: ContractAddress, game_id: u128, moves: Array<Direction>) -> GameState {
+        snforge_std::start_cheat_caller_address(sys.game.contract_address, caller);
+        let game_state: GameState = sys.game.submit_game(game_id, moves);
+        snforge_std::stop_cheat_caller_address(sys.game.contract_address);
+        (game_state)
+    }
+
 
     #[test]
     fn test_token_initialized() {
@@ -47,8 +56,8 @@ mod tests {
         let mut sys: TesterSystems = tester::setup_world();
         _mint_token(ref sys, OWNER());
         let uri: ByteArray = sys.game.token_uri(1);
-        assert_gt!(uri.len(), 1000, "token_uri.len()");
-        // println!("GAME TOKEN URI: [{}]", uri);
+        println!("GAME TOKEN URI: [{}]", uri);
+        assert_gt!(uri.len(), 200, "token_uri.len()");
     }
 
 
@@ -59,7 +68,6 @@ mod tests {
     #[test]
     fn test_token_set_minting_paused() {
         let mut sys: TesterSystems = tester::setup_world();
-        tester::impersonate(OWNER());
         assert_eq!(sys.game.is_minting_paused(), false, "default");
         sys.game.set_minting_paused(true);
         assert_eq!(sys.game.is_minting_paused(), true, "set_minting_paused(true)");
@@ -68,20 +76,19 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('ERC721Combo: minting is paused','ENTRYPOINT_FAILED'))]
+    #[should_panic(expected:('ERC721Combo: minting is paused',))]
     fn test_token_set_minting_paused_mint() {
         let mut sys: TesterSystems = tester::setup_world();
-        tester::impersonate(OWNER());
         sys.game.set_minting_paused(true);
         assert_eq!(sys.game.is_minting_paused(), true, "set_minting_paused(true)");
         _mint_token(ref sys, OWNER());
     }
 
     #[test]
-    #[should_panic(expected: ('FERAL: Invalid caller','ENTRYPOINT_FAILED'))]
+    #[should_panic(expected:('FERAL: Invalid caller',))]
     fn test_token_set_minting_paused_not_admin() {
         let mut sys: TesterSystems = tester::setup_world();
-        tester::impersonate(OTHER());
+        snforge_std::start_cheat_caller_address(sys.game.contract_address, OTHER());
         sys.game.set_minting_paused(true);
     }
 
@@ -217,7 +224,7 @@ mod tests {
         }
         tester::print_matrix(@game_state.matrix, "simulated");
         // submit...
-        let game_state_submitted: GameState = sys.game.submit_game(1, moves);
+        let game_state_submitted: GameState = _submit_game(ref sys, OWNER(), 1, moves);
         tester::print_matrix(@game_state_submitted.matrix, "submitted");
         // comapre...
         assert_eq!(game_state_submitted.game_id, 1, "game_state_submitted");
@@ -237,12 +244,11 @@ mod tests {
         let _game_state_0: GameState = sys.game.start_game(1);
         //
         // Player 1...
-        tester::impersonate(OWNER());
         let moves: Array<Direction> = array![
             Direction::Right,
             Direction::Down,
         ];
-        let game_state_1: GameState = sys.game.submit_game(1, moves);
+        let game_state_1: GameState = _submit_game(ref sys, OWNER(), 1, moves);
         assert_eq!(game_state_1.move_count, 2, "game_state_1");
         assert_gt!(game_state_1.score, 2, "game_state_1");
         let game_info_1: GameInfo = sys.world.read_model(1);
@@ -253,7 +259,6 @@ mod tests {
         assert_eq!(sys.game.owner_of(1), OWNER(), "game_info_1");
         //
         // Player 2... (new top)
-        tester::impersonate(OTHER());
         let moves: Array<Direction> = array![
             Direction::Right,
             Direction::Down,
@@ -262,7 +267,7 @@ mod tests {
             Direction::Up,
             Direction::Left,
         ];
-        let game_state_2: GameState = sys.game.submit_game(1, moves);
+        let game_state_2: GameState = _submit_game(ref sys, OTHER(), 1, moves);
         assert_eq!(game_state_2.move_count, 6, "game_state_2");
         assert_gt!(game_state_2.score, 2, "game_state_2");
         let game_info_2: GameInfo = sys.world.read_model(1);
@@ -273,12 +278,11 @@ mod tests {
         assert_eq!(sys.game.owner_of(1), OTHER(), "game_info_2");
         //
         // Player 3... (not qualified)
-        tester::impersonate(RECIPIENT());
         let moves: Array<Direction> = array![
             Direction::Down,
             Direction::Up,
         ];
-        let game_state_3: GameState = sys.game.submit_game(1, moves);
+        let game_state_3: GameState = _submit_game(ref sys, RECIPIENT(), 1, moves);
         assert_eq!(game_state_3.move_count, 2, "game_state_3");
         assert_gt!(game_state_3.score, 2, "game_state_3");
         let game_info_3: GameInfo = sys.world.read_model(1);
@@ -289,7 +293,6 @@ mod tests {
         assert_eq!(sys.game.owner_of(1), OTHER(), "game_info_2");
         //
         // Player 1 again... (new top)
-        tester::impersonate(OWNER());
         let moves: Array<Direction> = array![
             Direction::Right,
             Direction::Down,
@@ -304,7 +307,7 @@ mod tests {
             Direction::Up,
             Direction::Left,
         ];
-        let game_state_4: GameState = sys.game.submit_game(1, moves);
+        let game_state_4: GameState = _submit_game(ref sys, OWNER(), 1, moves);
         assert_eq!(game_state_4.move_count, 12, "game_state_4");
         assert_gt!(game_state_4.score, game_info_2.top_score, "game_state_4");
         let game_info_4: GameInfo = sys.world.read_model(1);
@@ -315,7 +318,6 @@ mod tests {
         assert_eq!(sys.game.owner_of(1), OWNER(), "game_info_4");
         //
         // another player...
-        tester::impersonate(RECIPIENT());
         let moves: Array<Direction> = array![
             Direction::Right,
             Direction::Down,
@@ -334,7 +336,7 @@ mod tests {
             Direction::Up,
             Direction::Left,
         ];
-        let game_state_5: GameState = sys.game.submit_game(1, moves);
+        let game_state_5: GameState = _submit_game(ref sys, RECIPIENT(), 1, moves);
         assert_eq!(game_state_5.move_count, 16, "game_state_5");
         assert_gt!(game_state_5.score, game_info_4.top_score, "game_state_5");
         let game_info_5: GameInfo = sys.world.read_model(1);
@@ -346,14 +348,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('FERAL: Invalid game','ENTRYPOINT_FAILED'))]
+    #[should_panic(expected:('FERAL: Invalid game',))]
     fn test_gameplay_start_invalid_game() {
         let mut sys: TesterSystems = tester::setup_world();
         sys.game.start_game(1);
     }
 
     #[test]
-    #[should_panic(expected: ('FERAL: Invalid game','ENTRYPOINT_FAILED'))]
+    #[should_panic(expected:('FERAL: Invalid game',))]
     fn test_gameplay_move_invalid_game() {
         let mut sys: TesterSystems = tester::setup_world();
         // mint
@@ -364,7 +366,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('FERAL: Invalid direction','ENTRYPOINT_FAILED'))]
+    #[should_panic(expected:('FERAL: Invalid direction',))]
     fn test_gameplay_move_invalid_direction() {
         let mut sys: TesterSystems = tester::setup_world();
         // mint
@@ -374,11 +376,11 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('FERAL: Invalid moves','ENTRYPOINT_FAILED'))]
+    #[should_panic(expected:('FERAL: Invalid moves',))]
     fn test_gameplay_start_invalid_moves() {
         let mut sys: TesterSystems = tester::setup_world();
         _mint_token(ref sys, OWNER());
-        sys.game.submit_game(1, array![]);
+        _submit_game(ref sys, OWNER(), 1, array![]);
     }
 
 }

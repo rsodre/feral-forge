@@ -142,3 +142,5 @@ vite.config.ts.timestamp-*
 .turbo/
 target/
 .DS_Store
+.snfoundry_cache/
+.claude/worktrees/

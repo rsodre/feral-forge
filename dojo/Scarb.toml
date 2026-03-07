@@ -21,7 +21,10 @@ nft_combo = { git = "https://github.com/underware-gg/cairo-nft-combo", branch = 
 [dev-dependencies]
 dojo_snf_test = "=1.8.0"
 snforge_std = "=0.51.2"
-assert_macros = "=2.13.1"
+assert_macros = ">=2.13.1"
+
+[scripts]
+test = "snforge test"
 
 [tool.scarb]
 allow-prebuilt-plugins = ["dojo_cairo_macros", "snforge_scarb_plugin"]
