@@ -2,7 +2,7 @@
 name = "feral"
 version.workspace = true
 edition.workspace = true
-cairo-version = ">=2.12.2"
+cairo-version = ">=2.13.1"
 license = "CC0-1.0"
 
 [cairo]
@@ -10,8 +10,8 @@ sierra-replace-ids = true
 panic-backtrace = true
 
 [dependencies]
-starknet = ">=2.12.2"
-dojo = "=1.7.2"
+starknet = ">=2.13.1"
+dojo = "=1.8.0"
 openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
 openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
 nft_combo = { git = "https://github.com/underware-gg/cairo-nft-combo", branch = "scarb_2.12.2" }
@@ -19,8 +19,8 @@ nft_combo = { git = "https://github.com/underware-gg/cairo-nft-combo", branch = 
 # graffiti = { git = "https://github.com/rsodre/graffiti", rev = "url" }
 
 [dev-dependencies]
-cairo_test = ">=2.12.2"
-dojo_cairo_test = "=1.7.2"
+cairo_test = ">=2.13.1"
+dojo_cairo_test = "=1.8.0"
 
 [tool.scarb]
 allow-prebuilt-plugins = ["dojo_cairo_macros"]
