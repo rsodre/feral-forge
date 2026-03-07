@@ -1,15 +1,13 @@
 #[cfg(test)]
 pub mod tester {
-    use starknet::{ContractAddress, testing};
-    // use dojo::model::{ModelStorage, ModelStorageTest};
+    use starknet::ContractAddress;
     use dojo::world::{
         IWorldDispatcherTrait,
         WorldStorage,
-        // WorldStorageTrait,
     };
-    use dojo_cairo_test::{
+    use dojo_snf_test::{
         ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
-        spawn_test_world,
+        spawn_test_world, set_caller_address,
     };
     pub use feral::libs::{
         dns::{DnsTrait,
@@ -19,8 +17,7 @@ pub mod tester {
     };
 
     pub fn impersonate(caller: ContractAddress) {
-        starknet::testing::set_account_contract_address(caller);    // starknet::get_execution_info().tx_info.account_contract_address
-        starknet::testing::set_contract_address(caller);            // starknet::get_execution_info().contract_address
+        set_caller_address(caller);
     }
 
     pub fn ZERO()      -> ContractAddress { 0x0.try_into().unwrap() }
@@ -40,9 +37,9 @@ pub mod tester {
         let ndef: NamespaceDef = NamespaceDef {
             namespace: "feral",
             resources: [
-                TestResource::Model(feral::models::game_info::m_GameInfo::TEST_CLASS_HASH.into()),
-                TestResource::Event(feral::models::game_info::e_GameScoredEvent::TEST_CLASS_HASH.into()),
-                TestResource::Contract(feral::systems::game_token::game_token::TEST_CLASS_HASH.into()),
+                TestResource::Model("GameInfo"),
+                TestResource::Event("GameScoredEvent"),
+                TestResource::Contract("game_token"),
             ].span(),
         };
         (ndef)
@@ -54,21 +51,15 @@ pub mod tester {
         ].span()
     }
 
-    #[test]
     pub fn setup_world() -> TesterSystems {
         let ndef: NamespaceDef = namespace_def();
-        let mut world: WorldStorage = spawn_test_world(
-            dojo::world::world::TEST_CLASS_HASH,
-            [ndef].span(),
-        );
+        let mut world: WorldStorage = spawn_test_world([ndef].span());
         world.sync_perms_and_inits(contract_defs());
         world.dispatcher.grant_owner(dojo::utils::bytearray_hash(@"feral"), OWNER());
         world.dispatcher.grant_owner(selector_from_tag!("feral-game_token"), OWNER());
 
         let game: IGameTokenDispatcher = world.game_dispatcher();
 
-        testing::set_block_number(1);
-        testing::set_block_timestamp(1);
         impersonate(OWNER());
 
         (TesterSystems {
