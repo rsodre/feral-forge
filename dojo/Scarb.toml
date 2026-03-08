@@ -12,9 +12,9 @@ panic-backtrace = true
 [dependencies]
 starknet = ">=2.13.1"
 dojo = "=1.8.0"
-openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
-openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts", tag = "v1.0.0" }
-nft_combo = { git = "https://github.com/underware-gg/cairo-nft-combo", branch = "scarb_2.12.2" }
+openzeppelin_token = "1.0.0"
+openzeppelin_introspection = "1.0.0"
+nft_combo = { git = "https://github.com/underware-gg/cairo-nft-combo", tag = "v1.2.1" }
 # achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "a4de9f4c38814a19716b6c5f9cbd4213645e9cb1" }
 # graffiti = { git = "https://github.com/rsodre/graffiti", rev = "url" }
 

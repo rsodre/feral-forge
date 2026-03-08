@@ -419,6 +419,7 @@ pub mod game_token {
                 featured_image: Option::None,
                 external_link: Option::Some(metadata::EXTERNAL_LINK()),
                 collaborators: Option::None,
+                background_color: Option::Some("000000"),
             };
             (Option::Some(metadata))
         }
