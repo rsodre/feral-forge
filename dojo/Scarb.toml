@@ -12,16 +12,21 @@ panic-backtrace = true
 [dependencies]
 starknet = "2.15.1"
 dojo = "=1.8.0"
-openzeppelin_token = "3.0.0"
-openzeppelin_introspection = "3.0.0"
-nft_combo = { git = "https://github.com/underware-gg/cairo-nft-combo", tag = "v1.2.1" }
-# achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "a4de9f4c38814a19716b6c5f9cbd4213645e9cb1" }
-# graffiti = { git = "https://github.com/rsodre/graffiti", rev = "url" }
+game_components_embeddable_game_standard = { git = "https://github.com/Provable-Games/game-components.git", tag = "v1.1.0" }
+game_components_utilities = { git = "https://github.com/Provable-Games/game-components.git", tag = "v1.1.0" }
+openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v3.0.0" }
+openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v3.0.0" }
+openzeppelin_interfaces = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v3.0.0" }
 
 [dev-dependencies]
 dojo_snf_test = "=1.8.0"
-snforge_std = "=0.51.2"
 assert_macros = "2.15.1"
+# snforge_std = "0.51.2" # dojo_snf_test
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.55.0" }
+denshokan_testing  = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
+denshokan_token    = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
+denshokan_registry = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
+denshokan_renderer = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
 
 [scripts]
 test = "snforge test"
@@ -38,8 +43,9 @@ casm = true
 allowed-libfuncs-list.name = "experimental"
 build-external-contracts = [
   "dojo::world::world_contract::world",
-#   "achievement::events::index::e_TrophyCreation",
-#   "achievement::events::index::e_TrophyProgression",
+  "denshokan_token::denshokan::Denshokan",
+  "denshokan_registry::minigame_registry::MinigameRegistry",
+  "denshokan_renderer::default_renderer::DefaultRenderer",
 ]
 
 # debug contract size issues
