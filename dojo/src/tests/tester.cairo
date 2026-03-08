@@ -11,7 +11,7 @@ pub mod tester {
     };
     pub use feral::libs::{
         dns::{DnsTrait,
-            IGameTokenDispatcher, IGameTokenDispatcherTrait
+            IFeralGameDispatcher, IFeralGameDispatcherTrait
         },
         gameplay::{GameMatrix},
     };
@@ -31,7 +31,7 @@ pub mod tester {
     #[derive(Copy, Drop)]
     pub struct TesterSystems {
         pub world: WorldStorage,
-        pub game: IGameTokenDispatcher,
+        pub game: IFeralGameDispatcher,
     }
 
     fn namespace_def() -> NamespaceDef {
@@ -39,27 +39,30 @@ pub mod tester {
             namespace: "feral",
             resources: [
                 TestResource::Model("GameInfo"),
-                TestResource::Event("GameScoredEvent"),
                 TestResource::Contract("game_token"),
             ].span(),
         };
         (ndef)
     }
-    fn contract_defs() -> Span<ContractDef> {
+    fn contract_defs(denshokan_address: ContractAddress) -> Span<ContractDef> {
         [
             ContractDefTrait::new(@"feral", @"game_token")
                 .with_writer_of([dojo::utils::bytearray_hash(@"feral")].span())
+                .with_init_calldata([denshokan_address.into()].span())
         ].span()
     }
 
     pub fn setup_world() -> TesterSystems {
+        let registry = denshokan_testing::helpers::setup::deploy_minigame_registry();
+        let (denshokan_address, _, _, _) = denshokan_testing::helpers::setup::deploy_denshokan(registry.contract_address);
+
         let ndef: NamespaceDef = namespace_def();
         let mut world: WorldStorage = spawn_test_world([ndef].span());
-        world.sync_perms_and_inits(contract_defs());
+        world.sync_perms_and_inits(contract_defs(denshokan_address));
         world.dispatcher.grant_owner(dojo::utils::bytearray_hash(@"feral"), OWNER());
         world.dispatcher.grant_owner(selector_from_tag!("feral-game_token"), OWNER());
 
-        let game: IGameTokenDispatcher = world.game_dispatcher();
+        let game: IFeralGameDispatcher = world.game_dispatcher();
 
         impersonate(OWNER());
 

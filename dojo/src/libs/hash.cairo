@@ -4,10 +4,10 @@ use core::hash::HashStateTrait;
 
 // pub use aster::utils::misc::{FeltToLossy};
 
-pub fn make_seed(contract_address: ContractAddress, token_id: u128) -> felt252 {
+pub fn make_seed(contract_address: ContractAddress, token_id: felt252) -> felt252 {
     (hash_values([
         contract_address.into(),
-        token_id.into(),
+        token_id,
         make_block_hash(),
     ].span()))
 }

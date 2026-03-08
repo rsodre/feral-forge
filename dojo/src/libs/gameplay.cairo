@@ -32,7 +32,7 @@ pub struct GameMatrix {
 // each tile contains a beast_id or zero
 #[derive(Copy, Drop, Serde, Debug, Default)]
 pub struct GameState {
-    pub game_id: u128,
+    pub game_id: felt252,
     pub seed: felt252,
     pub matrix: GameMatrix,
     pub free_tiles: u8,
@@ -56,7 +56,7 @@ pub impl DirectionImpl of DirectionTrait {
 pub impl GameplayImpl of GameplayTrait {
     //
     // create a new game state
-    fn start_game(self: @WorldStorage, game_id: u128) -> GameState {
+    fn start_game(self: @WorldStorage, game_id: felt252) -> GameState {
         let game_info: GameInfo = self.read_model(game_id);
         let mut game_state: GameState = GameState {
             game_id,

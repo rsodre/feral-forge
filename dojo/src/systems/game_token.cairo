@@ -1,5 +1,3 @@
-use starknet::{ContractAddress};
-use dojo::world::IWorldDispatcher;
 use feral::models::game_info::{GameInfo};
 use feral::libs::gameplay::{
     Direction,
@@ -8,180 +6,132 @@ use feral::libs::gameplay::{
 
 
 #[starknet::interface]
-pub trait IGameToken<TState> {
-    // IWorldProvider
-    fn world_dispatcher(self: @TState) -> IWorldDispatcher;
-
-    //-----------------------------------
-    // IERC721ComboABI start
-    //
-    // (ISRC5)
-    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
-    // (IERC721)
-    fn balance_of(self: @TState, account: ContractAddress) -> u256;
-    fn owner_of(self: @TState, token_id: u256) -> ContractAddress;
-    // fn safe_transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>);
-    // fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
-    // fn approve(ref self: TState, to: ContractAddress, token_id: u256);
-    // fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
-    // fn get_approved(self: @TState, token_id: u256) -> ContractAddress;
-    // fn is_approved_for_all(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
-    // (IERC721Metadata)
-    fn name(self: @TState) -> ByteArray;
-    fn symbol(self: @TState) -> ByteArray;
-    fn token_uri(self: @TState, token_id: u256) -> ByteArray;
-    fn tokenURI(self: @TState, tokenId: u256) -> ByteArray;
-    //-----------------------------------
-    // IERC721Minter
-    fn max_supply(self: @TState) -> u256;
-    fn reserved_supply(self: @TState) -> u256;
-    fn available_supply(self: @TState) -> u256;
-    fn minted_supply(self: @TState) -> u256;
-    fn total_supply(self: @TState) -> u256;
-    fn last_token_id(self: @TState) -> u256;
-    fn is_minting_paused(self: @TState) -> bool;
-    fn is_minted_out(self: @TState) -> bool;
-    fn is_owner_of(self: @TState, address: ContractAddress, token_id: u256) -> bool;
-    fn token_exists(self: @TState, token_id: u256) -> bool;
-    //-----------------------------------
-    // IERC7572ContractMetadata
-    fn contract_uri(self: @TState) -> ByteArray;
-    fn contractURI(self: @TState) -> ByteArray;
-    //-----------------------------------
-    // IERC4906MetadataUpdate
-    //-----------------------------------
-    // IERC2981RoyaltyInfo
-    fn royalty_info(self: @TState, token_id: u256, sale_price: u256) -> (ContractAddress, u256);
-    fn default_royalty(self: @TState) -> (ContractAddress, u128, u128);
-    fn token_royalty(self: @TState, token_id: u256) -> (ContractAddress, u128, u128);
-    // IERC721ComboABI end
-    //-----------------------------------
-
-    // game
-    fn mint(ref self: TState, recipient: ContractAddress) -> u128;
-    fn submit_game(ref self: TState, game_id: u128, moves: Array<Direction>) -> GameState;
-    fn start_game(self: @TState, game_id: u128) -> GameState;
+pub trait IFeralGame<TState> {
+    fn new_game(ref self: TState, token_id: felt252);
+    fn start_game(self: @TState, token_id: felt252) -> GameState;
     fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
-    fn get_game_info(self: @TState, game_id: u128) -> GameInfo;
-    fn get_games_info(self: @TState, game_id: u128, count: usize) -> Array<GameInfo>;
-    // admin
-    fn set_minting_paused(ref self: TState, is_paused: bool);
-    fn update_token_metadata(ref self: TState, token_id: u256);
-    fn update_tokens_metadata(ref self: TState, from_token_id: u256, to_token_id: u256);
-    fn update_contract_metadata(ref self: TState);
+    fn submit_game(ref self: TState, token_id: felt252, moves: Array<Direction>) -> GameState;
+    fn get_game_info(self: @TState, token_id: felt252) -> GameInfo;
+    fn get_games_info(self: @TState, token_id: felt252, count: usize) -> Array<GameInfo>;
 }
 
-#[starknet::interface]
-pub trait IGameTokenPublic<TState> {
-    fn mint(ref self: TState, recipient: ContractAddress) -> u128;
-    fn submit_game(ref self: TState, game_id: u128, moves: Array<Direction>) -> GameState;
-    fn start_game(self: @TState, game_id: u128) -> GameState;
-    fn move(self: @TState, game_state: GameState, direction: Direction) -> GameState;
-    fn get_game_info(self: @TState, game_id: u128) -> GameInfo;
-    fn get_games_info(self: @TState, game_id: u128, count: usize) -> Array<GameInfo>;
-    // admin
-    fn set_minting_paused(ref self: TState, is_paused: bool);
-    fn update_token_metadata(ref self: TState, token_id: u256);
-    fn update_tokens_metadata(ref self: TState, from_token_id: u256, to_token_id: u256);
-    fn update_contract_metadata(ref self: TState);
-    // fn create_trophies(ref self: TState);
-    // fn burn(ref self: TState, token_id: u256);
-}
 
 #[dojo::contract]
 pub mod game_token {
     use core::num::traits::Zero;
     use starknet::ContractAddress;
     use dojo::{
-        world::{WorldStorage, IWorldDispatcherTrait},
+        world::{WorldStorage},
         model::{ModelStorage},
-        event::{EventStorage},
     };
 
     //-----------------------------------
-    // ERC721 start
+    // EGS components
     //
+    use game_components_embeddable_game_standard::minigame::minigame_component::MinigameComponent;
+    use game_components_embeddable_game_standard::minigame::extensions::settings::settings::SettingsComponent;
+    use game_components_embeddable_game_standard::minigame::extensions::objectives::objectives::ObjectivesComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721Component;
-    use nft_combo::erc721::erc721_combo::ERC721ComboComponent;
-    use nft_combo::erc721::erc721_combo::ERC721ComboComponent::{ERC721HooksImpl};
-    use nft_combo::utils::renderer::{ContractMetadata, TokenMetadata};
-    // use achievement::components::achievable::AchievableComponent;
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: ERC721ComboComponent, storage: erc721_combo, event: ERC721ComboEvent);
-    // component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
-    impl ERC721ComboInternalImpl = ERC721ComboComponent::InternalImpl<ContractState>;
+
+    component!(path: MinigameComponent,   storage: minigame,   event: MinigameEvent);
+    component!(path: SettingsComponent,   storage: settings,   event: SettingsEvent);
+    component!(path: ObjectivesComponent, storage: objectives, event: ObjectivesEvent);
+    component!(path: SRC5Component,       storage: src5,       event: SRC5Event);
+
     #[abi(embed_v0)]
-    impl ERC721ComboMixinImpl = ERC721ComboComponent::ERC721ComboMixinImpl<ContractState>;
-    // impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
+    impl MinigameImpl = MinigameComponent::MinigameImpl<ContractState>;
+    impl MinigameInternalImpl = MinigameComponent::InternalImpl<ContractState>;
+    impl SettingsInternalImpl = SettingsComponent::InternalImpl<ContractState>;
+    impl ObjectivesInternalImpl = ObjectivesComponent::InternalImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        minigame:   MinigameComponent::Storage,
         #[substorage(v0)]
-        erc721: ERC721Component::Storage,
+        settings:   SettingsComponent::Storage,
         #[substorage(v0)]
-        erc721_combo: ERC721ComboComponent::Storage,
-        // #[substorage(v0)]
-        // achievable: AchievableComponent::Storage,
+        objectives: ObjectivesComponent::Storage,
+        #[substorage(v0)]
+        src5:       SRC5Component::Storage,
     }
+
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        SRC5Event: SRC5Component::Event,
+        MinigameEvent:   MinigameComponent::Event,
         #[flat]
-        ERC721Event: ERC721Component::Event,
+        SettingsEvent:   SettingsComponent::Event,
         #[flat]
-        ERC721ComboEvent: ERC721ComboComponent::Event,
-        // #[flat]
-        // AchievableEvent: AchievableComponent::Event,
+        ObjectivesEvent: ObjectivesComponent::Event,
+        #[flat]
+        SRC5Event:       SRC5Component::Event,
     }
     //
-    // ERC721 end
+    // EGS components end
     //-----------------------------------
 
-    use feral::models::{
-        game_info::{GameInfo, GameScoredEvent},
+    use game_components_embeddable_game_standard::minigame::interface::{
+        IMinigameDetails, IMinigameTokenData,
     };
+    use game_components_embeddable_game_standard::minigame::extensions::settings::interface::{
+        IMinigameSettings, IMinigameSettingsDetails,
+    };
+    use game_components_embeddable_game_standard::minigame::extensions::objectives::interface::{
+        IMinigameObjectives, IMinigameObjectivesDetails,
+    };
+    use game_components_embeddable_game_standard::minigame::extensions::objectives::structs::{
+        GameObjectiveDetails,
+    };
+    use game_components_embeddable_game_standard::minigame::extensions::settings::structs::{
+        GameSetting, GameSettingDetails,
+    };
+    use game_components_embeddable_game_standard::minigame::structs::GameDetail;
+    use game_components_utilities::utils::encoding::u128_to_ascii_felt;
+
+    use feral::models::game_info::{GameInfo};
     use feral::libs::{
         metadata,
         hash::{make_seed},
-        dns::{SELECTORS},
         gameplay::{
             GameState,
             GameplayTrait,
             Direction,
         },
     };
-    use nft_combo::utils::renderer::{Attribute};
 
     pub mod Errors {
-        pub const INVALID_CALLER: felt252       = 'FERAL: Invalid caller';
-        pub const INVALID_GAME: felt252         = 'FERAL: Invalid game';
-        pub const INVALID_TILE: felt252         = 'FERAL: Invalid tile';
-        pub const INVALID_BEAST: felt252        = 'FERAL: Invalid beast';
-        pub const GAME_FINISHED: felt252        = 'FERAL: Game finished';
-        pub const INVALID_DIRECTION: felt252    = 'FERAL: Invalid direction';
-        pub const INVALID_MOVES: felt252        = 'FERAL: Invalid moves';
-        pub const INVALID_TRANSFER: felt252     = 'FERAL: Transfer by scoring';
+        pub const INVALID_CALLER: felt252 = 'FERAL: Invalid caller';
+        pub const INVALID_GAME: felt252   = 'FERAL: Invalid game';
+        pub const INVALID_MOVES: felt252  = 'FERAL: Invalid moves';
+        pub const GAME_FINISHED: felt252  = 'FERAL: Game finished';
+        pub const INVALID_DIRECTION: felt252 = 'FERAL: Invalid direction';
+        pub const INVALID_TILE: felt252   = 'FERAL: Invalid tile';
+        pub const INVALID_BEAST: felt252  = 'FERAL: Invalid beast';
     }
 
-    fn dojo_init(ref self: ContractState) {
-        // initialize ERC721
-        self.erc721_combo.initializer(
-            metadata::TOKEN_NAME(),
-            metadata::TOKEN_SYMBOL(),
-            Option::None, // use hooks
-            Option::None, // use hooks
-            Option::None, // infinite supply
+    fn dojo_init(ref self: ContractState, minigame_token_address: ContractAddress) {
+        self.minigame.initializer(
+            starknet::get_caller_address(),                 // game_creator
+            metadata::TOKEN_NAME(),                         // game_name
+            metadata::DESCRIPTION(),                        // game_description
+            "Underware",                                    // developer
+            "Underware",                                    // publisher
+            "Puzzle",                                       // genre
+            metadata::CONTRACT_IMAGE(),                     // game_image
+            Option::None,                                   // color
+            Option::Some(metadata::EXTERNAL_LINK()),        // client_url
+            Option::None,                                   // renderer_address (EGS default)
+            Option::None,                                   // settings_address
+            Option::None,                                   // objectives_address
+            minigame_token_address,
+            Option::None,                                   // royalty_fraction
+            Option::None,                                   // skills_address
+            1_u64,                                          // version
         );
-
-        // create trophies/achievements
-        // let mut world: WorldStorage = self.world_default();
-        // self._create_trophies(ref world);
     }
 
     #[generate_trait]
@@ -193,278 +143,289 @@ pub mod game_token {
     }
 
 
+
     //-----------------------------------
-    // IGameTokenPublic
+    // IFeralGame
     //
     #[abi(embed_v0)]
-    impl GameTokenPublicImpl of super::IGameTokenPublic<ContractState> {
+    impl FeralGameImpl of super::IFeralGame<ContractState> {
 
-        //-----------------------------------
-        // minting
-        //
-        fn mint(ref self: ContractState, recipient: ContractAddress) -> u128 {
+        fn new_game(ref self: ContractState, token_id: felt252) {
+            self.minigame.pre_action(token_id); // verifies ownership + game not over
+
             let mut world: WorldStorage = self.world_default();
+            let caller: ContractAddress = starknet::get_caller_address();
+            let seed: felt252 = make_seed(starknet::get_contract_address(), token_id);
 
-            // mint
-            let token_id: u256 = self.erc721_combo._mint_next(recipient);
-
-            // authorize this contract to transfer the token
-            let contract_address: ContractAddress = starknet::get_contract_address();
-
-            // TODO: use VRF
-            // generate seed
-            let seed: felt252 = make_seed(contract_address, token_id.low);
-
-            // save token
             world.write_model(@GameInfo {
-                game_id: token_id.low,
-                minter_address: recipient,
+                token_id,
                 seed,
-                top_score_address: recipient,
+                top_score_address: caller,
                 top_score_move_count: 0,
                 top_score: 0,
+                finished: false,
             });
 
-            (token_id.low)
+            self.minigame.post_action(token_id);
         }
 
-        // fn burn(ref self: ContractState, token_id: u256) {
-        //     let owner: ContractAddress = self.owner_of(token_id);
-        //     self.erc721_combo._burn(token_id);
-        // }
-
-        //-----------------------------------
-        // gameplay
-        //
-
-        // off-chain play
-        fn start_game(self: @ContractState, game_id: u128) -> GameState {
+        fn start_game(self: @ContractState, token_id: felt252) -> GameState {
             let world: WorldStorage = self.world_default();
-            assert(self.token_exists(game_id.into()), Errors::INVALID_GAME);
-            // create new game state
-            let mut game_state: GameState = world.start_game(game_id);
-            // calculate score
-            // game_state.calc_score(); // start with zero!
-            (game_state)
+            (world.start_game(token_id))
         }
 
         fn move(self: @ContractState, mut game_state: GameState, direction: Direction) -> GameState {
-            assert(self.token_exists(game_state.game_id.into()), Errors::INVALID_GAME);
-            // create new game state
             game_state.move(direction);
-            // calculate score
             game_state.calc_score();
             (game_state)
         }
 
-        fn submit_game(ref self: ContractState, game_id: u128, moves: Array<Direction>) -> GameState {
+        fn submit_game(ref self: ContractState, token_id: felt252, moves: Array<Direction>) -> GameState {
+            self.minigame.pre_action(token_id);
+
             let mut world: WorldStorage = self.world_default();
-            assert(self.token_exists(game_id.into()), Errors::INVALID_GAME);
             assert(moves.len().is_non_zero(), Errors::INVALID_MOVES);
-            // make a new game
-            let mut game_state: GameState = world.start_game(game_id);
-            // process all moves
+            let mut game_state: GameState = world.start_game(token_id);
             for i in 0..moves.len() {
                 let direction: Direction = *moves[i];
                 game_state.move(direction);
-                // early exit if the game is finished
-                if (game_state.finished) {
-                    break;
-                }
+                if game_state.finished { break; }
             }
-            // calculate score
             game_state.calc_score();
-            // check if it's a new top score
-            let mut game_info: GameInfo = world.read_model(game_id);
+            let mut game_info: GameInfo = world.read_model(token_id);
             let is_new_top_score: bool = (
                 game_state.score > game_info.top_score ||
                 (game_state.score == game_info.top_score && game_state.move_count < game_info.top_score_move_count)
             );
-            // update top score
-            let caller: ContractAddress = starknet::get_caller_address();
-            if (is_new_top_score) {
+            if is_new_top_score {
+                let caller: ContractAddress = starknet::get_caller_address();
                 game_info.top_score_address = caller;
                 game_info.top_score_move_count = game_state.move_count;
                 game_info.top_score = game_state.score;
-                world.write_model(@game_info);
-                // transfer token to new top score holder
-                let owner: ContractAddress = self.owner_of(game_id.into());
-                if (owner != caller) {
-                    self.erc721._approve(caller, game_id.into(), 0x0.try_into().unwrap());
-                    self.erc721_combo.transfer_from(owner, caller, game_id.into());
-                }
             }
-            // standard scoring event
-            if (is_new_top_score || game_state.finished) {
-                world.emit_event(@GameScoredEvent{
-                    game_id,
-                    player_address: caller,
-                    move_count: game_state.move_count,
-                    score: game_state.score,
-                });
-            }
-            // returns the final state
+            game_info.finished = game_state.finished;
+            world.write_model(@game_info);
+
+            self.minigame.post_action(token_id);
             (game_state)
         }
 
-        fn get_game_info(self: @ContractState, game_id: u128) -> GameInfo {
+        fn get_game_info(self: @ContractState, token_id: felt252) -> GameInfo {
             let world: WorldStorage = self.world_default();
-            (world.read_model(game_id))
+            (world.read_model(token_id))
         }
 
-        fn get_games_info(self: @ContractState, mut game_id: u128, count: usize) -> Array<GameInfo> {
+        fn get_games_info(self: @ContractState, token_id: felt252, count: usize) -> Array<GameInfo> {
             let world: WorldStorage = self.world_default();
-            let supply: u128 = self.total_supply().low;
-            // games to fetch...
+            let mut id: felt252 = token_id;
             let mut result: Array<GameInfo> = array![];
             for _ in 0..count {
-                if (game_id > supply) {
-                    break;
-                }
-                result.append(world.read_model(game_id));
-                game_id += 1;
+                result.append(world.read_model(id));
+                id = id + 1;
             };
             (result)
         }
-
-        //-----------------------------------
-        // admin
-        //
-        fn set_minting_paused(ref self: ContractState, is_paused: bool) {
-            let world: WorldStorage = self.world_default();
-            self._assert_caller_is_owner(@world);
-            self.erc721_combo._set_minting_paused(is_paused);
-        }
-        fn update_token_metadata(ref self: ContractState, token_id: u256) {
-            // let mut world: WorldStorage = self.world_default();
-            // self._assert_caller_is_owner(@world);
-            self.erc721_combo._emit_metadata_update(token_id);
-        }
-        fn update_tokens_metadata(ref self: ContractState, from_token_id: u256, to_token_id: u256) {
-            let world: WorldStorage = self.world_default();
-            self._assert_caller_is_owner(@world);
-            self.erc721_combo._emit_batch_metadata_update(from_token_id, to_token_id);
-        }
-        fn update_contract_metadata(ref self: ContractState) {
-            let world: WorldStorage = self.world_default();
-            self._assert_caller_is_owner(@world);
-            self.erc721_combo._emit_contract_uri_updated();
-        }
-        // fn create_trophies(ref self: ContractState) {
-        //     let mut world: WorldStorage = self.world_default();
-        //     self._assert_caller_is_owner(@world);
-        //     self._create_trophies(ref world);
-        // }
     }
 
 
-    //-----------------------------------
-    // Internal
-    //
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        #[inline(always)]
-        fn _assert_caller_is_owner(self: @ContractState, world: @WorldStorage) {
-            assert(self._caller_is_owner(world), Errors::INVALID_CALLER);
-        }
-        fn _caller_is_owner(self: @ContractState, world: @WorldStorage) -> bool {
-            ((*world.dispatcher).is_owner(SELECTORS::GAME_TOKEN, starknet::get_caller_address()))
-        }
-        
-        // fn _create_trophies(ref self: ContractState, ref world: WorldStorage) {
-        //     let mut trophy_id: u8 = 1;
-        //     while (trophy_id <= TROPHIES::COUNT) {
-        //         let trophy: Trophy = trophy_id.into();
-        //         self.achievable.create(
-        //             world,
-        //             id: trophy.identifier(),
-        //             hidden: trophy.hidden(),
-        //             index: trophy.index(),
-        //             points: trophy.points(),
-        //             start: trophy.start(),
-        //             end: trophy.end(),
-        //             group: trophy.group(),
-        //             icon: trophy.icon(),
-        //             title: trophy.title(),
-        //             description: trophy.description(),
-        //             tasks: trophy.tasks(),
-        //             data: trophy.data(),
-        //         );
-        //         trophy_id += 1;
-        //     }
-        // }
-    }
-
 
     //-----------------------------------
-    // ERC721ComboHooksTrait
+    // IMinigameTokenData
     //
-    pub impl ERC721ComboHooksImpl of ERC721ComboComponent::ERC721ComboHooksTrait<ContractState> {
-        fn before_update(ref self: ERC721ComboComponent::ComponentState<ContractState>, to: ContractAddress, token_id: u256, auth: ContractAddress) {
-            let mut self = self.get_contract_mut();
-            let mut erc721 = ERC721Component::HasComponent::get_component_mut(ref self);
-            let from: ContractAddress = erc721._owner_of(token_id);
-            if (from.is_non_zero()) {
-                assert(starknet::get_caller_address() != from, Errors::INVALID_TRANSFER);
+    // game_over() is a placeholder until Phase 6 adds GameInfo.finished.
+    //
+    #[abi(embed_v0)]
+    impl TokenDataImpl of IMinigameTokenData<ContractState> {
+        fn score(self: @ContractState, token_id: felt252) -> u64 {
+            let world = self.world_default();
+            let info: GameInfo = world.read_model(token_id);
+            info.top_score.into()
+        }
+        fn game_over(self: @ContractState, token_id: felt252) -> bool {
+            let world = self.world_default();
+            let info: GameInfo = world.read_model(token_id);
+            info.finished
+        }
+        fn score_batch(self: @ContractState, token_ids: Span<felt252>) -> Array<u64> {
+            let mut out = array![];
+            for i in 0..token_ids.len() {
+                out.append(self.score(*token_ids.at(i)));
             }
+            out
         }
-        fn render_contract_uri(self: @ERC721ComboComponent::ComponentState<ContractState>) -> Option<ContractMetadata> {
-            // https://docs.opensea.io/docs/contract-level-metadata
-            let metadata: ContractMetadata = ContractMetadata {
-                name: self.name(),
-                symbol: self.symbol(),
-                description: metadata::DESCRIPTION(),
-                image: Option::Some(metadata::CONTRACT_IMAGE()),
-                banner_image: Option::Some(metadata::BANNER_IMAGE()),
-                featured_image: Option::None,
-                external_link: Option::Some(metadata::EXTERNAL_LINK()),
-                collaborators: Option::None,
-                background_color: Option::Some("000000"),
-            };
-            (Option::Some(metadata))
+        fn game_over_batch(self: @ContractState, token_ids: Span<felt252>) -> Array<bool> {
+            let mut out = array![];
+            for i in 0..token_ids.len() {
+                out.append(self.game_over(*token_ids.at(i)));
+            }
+            out
+        }
+    }
+
+
+    //-----------------------------------
+    // IMinigameDetails
+    //
+    #[abi(embed_v0)]
+    impl DetailsImpl of IMinigameDetails<ContractState> {
+        fn token_name(self: @ContractState, token_id: felt252) -> ByteArray {
+            metadata::TOKEN_NAME()
+        }
+        fn token_description(self: @ContractState, token_id: felt252) -> ByteArray {
+            let world = self.world_default();
+            let info: GameInfo = world.read_model(token_id);
+            format!("Feral Forge. Top score: {} in {} moves.", info.top_score, info.top_score_move_count)
+        }
+        fn game_details(self: @ContractState, token_id: felt252) -> Span<GameDetail> {
+            let world = self.world_default();
+            let info: GameInfo = world.read_model(token_id);
+            array![
+                GameDetail { name: 'Score',       value: u128_to_ascii_felt(info.top_score.into()) },
+                GameDetail { name: 'Move Count',  value: u128_to_ascii_felt(info.top_score_move_count.into()) },
+            ].span()
+        }
+        fn token_name_batch(self: @ContractState, token_ids: Span<felt252>) -> Array<ByteArray> {
+            let mut out: Array<ByteArray> = array![];
+            for i in 0..token_ids.len() {
+                out.append(self.token_name(*token_ids.at(i)));
+            }
+            out
+        }
+        fn token_description_batch(self: @ContractState, token_ids: Span<felt252>) -> Array<ByteArray> {
+            let mut out: Array<ByteArray> = array![];
+            for i in 0..token_ids.len() {
+                out.append(self.token_description(*token_ids.at(i)));
+            }
+            out
+        }
+        fn game_details_batch(self: @ContractState, token_ids: Span<felt252>) -> Array<Span<GameDetail>> {
+            let mut out: Array<Span<GameDetail>> = array![];
+            for i in 0..token_ids.len() {
+                out.append(self.game_details(*token_ids.at(i)));
+            }
+            out
+        }
+    }
+
+
+    // ======================================================================
+    // IMinigameSettings
+    // ======================================================================
+
+    #[abi(embed_v0)]
+    impl GameSettingsImpl of IMinigameSettings<ContractState> {
+        fn settings_exist(self: @ContractState, settings_id: u32) -> bool {
+            (settings_id == 1)
         }
 
-        fn render_token_uri(self: @ERC721ComboComponent::ComponentState<ContractState>, token_id: u256) -> Option<TokenMetadata> {
-            let self: @ContractState = self.get_contract(); // get the component's contract state
-            let mut world: WorldStorage = self.world_default();
-            // attributes and metadata
-            let game_id: u128 = token_id.low;
-            let game_info: GameInfo = world.read_model(game_id);
-            let mut attributes: Span<Attribute> = array![
-                Attribute {
-                    key: "Top Score",
-                    value: format!("{}", game_info.top_score),
-                },
-                Attribute {
-                    key: "Top Score Move Count",
-                    value: format!("{}", game_info.top_score_move_count),
-                },
-                Attribute {
-                    key: "Top Score Holder",
-                    value: format!("0x{:x}", game_info.top_score_address),
-                },
-            ].span();
-            let mut additional_metadata: Span<Attribute> = array![
-                Attribute {
-                    key: "Seed",
-                    value: format!("0x{:x}", game_info.seed),
-                },
-            ].span();
-            // https://docs.opensea.io/docs/metadata-standards#metadata-structure
-            let metadata: TokenMetadata = TokenMetadata {
-                token_id,
-                name: format!("{} #{}", metadata::TOKEN_NAME(), game_id),
-                description: metadata::DESCRIPTION(),
-                image: Option::Some(metadata::CONTRACT_IMAGE()),
-                image_data: Option::None,
-                external_url: Option::Some(metadata::EXTERNAL_LINK()), // TODO: format external token link
-                background_color: Option::Some(metadata::BACKGROUND_COLOR()),
-                animation_url: Option::None,
-                youtube_url: Option::None,
-                attributes: Option::Some(attributes),
-                additional_metadata: Option::Some(additional_metadata),
-            };
-            (Option::Some(metadata))
+        fn settings_exist_batch(self: @ContractState, settings_ids: Span<u32>) -> Array<bool> {
+            let mut results: Array<bool> = array![];
+            for i in 0..settings_ids.len() {
+                results.append(self.settings_exist(*settings_ids.at(i)));
+            }
+            results
+        }
+    }
+
+
+    // ======================================================================
+    // IMinigameSettingsDetails
+    // ======================================================================
+
+    #[abi(embed_v0)]
+    impl GameSettingsDetailsImpl of IMinigameSettingsDetails<ContractState> {
+        fn settings_details(self: @ContractState, settings_id: u32) -> GameSettingDetails {
+            (GameSettingDetails {
+                name: "Classic",
+                description: "Classic 4x4 grid game",
+                settings: array![
+                    GameSetting { name: 'Grid Size', value: u128_to_ascii_felt(4) },
+                ].span(),
+            })
+        }
+
+        fn settings_details_batch(
+            self: @ContractState, settings_ids: Span<u32>,
+        ) -> Array<GameSettingDetails> {
+            let mut results: Array<GameSettingDetails> = array![];
+            for i in 0..settings_ids.len() {
+                results.append(self.settings_details(*settings_ids.at(i)));
+            }
+            (results)
+        }
+
+        fn settings_count(self: @ContractState) -> u32 {
+            (1)
+        }
+    }
+
+
+    // ======================================================================
+    // IMinigameObjectives
+    // ======================================================================
+
+    #[abi(embed_v0)]
+    impl GameObjectivesImpl of IMinigameObjectives<ContractState> {
+        fn objective_exists(self: @ContractState, objective_id: u32) -> bool {
+            (false)
+        }
+
+        fn completed_objective(self: @ContractState, token_id: felt252, objective_id: u32) -> bool {
+            (false)
+        }
+
+        fn objective_exists_batch(self: @ContractState, objective_ids: Span<u32>) -> Array<bool> {
+            let mut results: Array<bool> = array![];
+            for i in 0..objective_ids.len() {
+                results.append(self.objective_exists(*objective_ids.at(i)));
+            }
+            results
+        }
+    }
+
+
+    // ======================================================================
+    // IMinigameObjectivesDetails
+    // ======================================================================
+
+    #[abi(embed_v0)]
+    impl GameObjectivesDetailsImpl of IMinigameObjectivesDetails<ContractState> {
+        fn objectives_details(self: @ContractState, objective_id: u32) -> GameObjectiveDetails {
+            
+            assert!(false, "Objective does not exist");
+            (GameObjectiveDetails { name: "", description: "", objectives: array![].span() })
+
+            // // Build objectives array with type and threshold info
+            // let type_str: felt252 = if objective_type == 1 {
+            //     'Win'
+            // } else if objective_type == 2 {
+            //     'WinWithinN'
+            // } else {
+            //     'PerfectGame'
+            // };
+            // let mut objectives = array![];
+            // objectives.append(GameObjective { name: 'type', value: type_str });
+            // objectives
+            //     .append(
+            //         GameObjective {
+            //             name: 'threshold', value: u128_to_ascii_felt(threshold.into()),
+            //         },
+            //     );
+            // GameObjectiveDetails { name, description, objectives: objectives.span() }
+        }
+
+        fn objectives_details_batch(
+            self: @ContractState, objective_ids: Span<u32>,
+        ) -> Array<GameObjectiveDetails> {
+            let mut results: Array<GameObjectiveDetails> = array![];
+            for i in 0..objective_ids.len() {
+                results.append(self.objectives_details(*objective_ids.at(i)));
+            }
+            results
+        }
+
+        fn objectives_count(self: @ContractState) -> u32 {
+            (0)
         }
     }
 

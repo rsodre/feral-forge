@@ -6,7 +6,7 @@ use dojo::meta::interface::{
 };
 
 pub use feral::{
-    systems::game_token::{IGameTokenDispatcher, IGameTokenDispatcherTrait},
+    systems::game_token::{IFeralGameDispatcher, IFeralGameDispatcherTrait},
 };
 
 pub mod SELECTORS {
@@ -37,7 +37,7 @@ pub impl DnsImpl of DnsTrait {
     // dispatchers
     //
     #[inline(always)]
-    fn game_dispatcher(self: @WorldStorage) -> IGameTokenDispatcher {
-        (IGameTokenDispatcher{ contract_address: self.game_address() })
+    fn game_dispatcher(self: @WorldStorage) -> IFeralGameDispatcher {
+        (IFeralGameDispatcher{ contract_address: self.game_address() })
     }
 }
