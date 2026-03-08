@@ -18,15 +18,15 @@ openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-cont
 openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v3.0.0" }
 openzeppelin_interfaces = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v3.0.0" }
 
-[dev-dependencies]
-dojo_snf_test = "=1.8.0"
-assert_macros = "2.15.1"
-# snforge_std = "0.51.2" # dojo_snf_test
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.55.0" }
-denshokan_testing  = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
-denshokan_token    = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
-denshokan_registry = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
-denshokan_renderer = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
+# [dev-dependencies]
+# dojo_snf_test = "=1.8.0"
+# assert_macros = "2.15.1"
+# # snforge_std = "0.51.2" # dojo_snf_test
+# snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.55.0" }
+# denshokan_testing  = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
+# denshokan_token    = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
+# denshokan_registry = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
+# denshokan_renderer = { git = "https://github.com/Provable-Games/denshokan.git", branch = "main" }
 
 [scripts]
 test = "snforge test"
@@ -43,9 +43,9 @@ casm = true
 allowed-libfuncs-list.name = "experimental"
 build-external-contracts = [
   "dojo::world::world_contract::world",
-  "denshokan_token::denshokan::Denshokan",
-  "denshokan_registry::minigame_registry::MinigameRegistry",
-  "denshokan_renderer::default_renderer::DefaultRenderer",
+  # "denshokan_token::denshokan::Denshokan",
+  # "denshokan_registry::minigame_registry::MinigameRegistry",
+  # "denshokan_renderer::default_renderer::DefaultRenderer",
 ]
 
 # debug contract size issues
