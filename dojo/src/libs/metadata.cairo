@@ -1,6 +1,9 @@
 
 pub fn TOKEN_NAME() -> ByteArray {"Feral Forge Game"}
 pub fn TOKEN_SYMBOL() -> ByteArray {"FORGE"}
+pub fn DEVELOPER_NAME() -> ByteArray {"Underware"}
+pub fn PUBLISHER_NAME() -> ByteArray {"Underware"}
+pub fn GAME_GENRE() -> ByteArray {"Puzzle"}
 
 pub fn DESCRIPTION() -> ByteArray {"In the depths of Death Mountain lies the Feral Forge, a vicious playground where newborn beasts get prepared to rise for battle!"}
 pub fn EXTERNAL_LINK() -> ByteArray {"https://feral.beta.underware.gg"}

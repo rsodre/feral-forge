@@ -5,27 +5,10 @@ use starknet::ContractAddress;
 #[dojo::model]
 pub struct GameInfo {
     #[key]
-    pub game_id: u128,
-    //-----------------------------------
-    pub minter_address: ContractAddress,
+    pub token_id: felt252,
     pub seed: felt252,
-    // top score holder
     pub top_score_address: ContractAddress,
     pub top_score_move_count: u16,
     pub top_score: u16,
-}
-
-//---------------------------------
-// events
-//
-#[derive(Copy, Drop, Serde)]
-#[dojo::event(historical:false)]
-pub struct GameScoredEvent {
-    #[key]
-    pub game_id: u128,
-    #[key]
-    pub player_address: ContractAddress,
-    /// Properties ///
-    pub move_count: u16,
-    pub score: u16,
+    pub finished: bool,
 }
