@@ -2,16 +2,7 @@
 # https://docs.swmansion.com/scarb/docs/reference/workspaces.html#virtual-workspace
 
 [workspace]
-members = ["dojo"]
+members = []
 
 [workspace.package]
-version = "0.1.1"
-edition = "2024_07"
-
-#--------------------------
-# Dojo profiles declaration
-#
-[profile.dev]
-[profile.slot]
-[profile.sepolia]
-[profile.mainnet]
+cairo-version = ">=2.13.1"

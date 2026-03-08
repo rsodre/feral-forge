@@ -23,7 +23,7 @@ do
   if [[ -z "$PROFILE" ]]; then # if not set
     # $1: Profile
     export PROFILE=$1
-    export DOJO_PROFILE_FILE="../dojo_$PROFILE.toml"
+    export DOJO_PROFILE_FILE="./dojo_$PROFILE.toml"
     if [ ! -f $DOJO_PROFILE_FILE ]; then
       echo "❌ Error: Missing profile config file: $DOJO_PROFILE_FILE"
       exit 1
@@ -108,7 +108,7 @@ export ACCOUNT_ADDRESS=${DOJO_ACCOUNT_ADDRESS:-$(get_profile_env "account_addres
 # use $STARKNET_RPC_URL else read from profile
 export RPC_URL=${STARKNET_RPC_URL:-$(get_profile_env "rpc_url")}
 
-export MANIFEST_FILE_PATH="../manifest_$PROFILE.json"
+export MANIFEST_FILE_PATH="./manifest_$PROFILE.json"
 export BINDINGS_PATH="./bindings"
 export CLIENT_MANIFEST_PATH="../client/src/generated"
 
