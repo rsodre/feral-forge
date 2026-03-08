@@ -1,7 +1,7 @@
 #
 # torii config for profile [mainnet]
 #
-world_address = "0x02098ea5abf3d4e6cd95df962c58ab746d9a7fd67a47cada710ea2e491354cd2"
+world_address = "0x0151badfd4875c60de9a2c933c0831c8ba7acf7e29d50b4a317b6cf62fe6eccc"
 rpc = "https://api.cartridge.gg/x/starknet/mainnet/rpc/v0_9"
 
 [events]

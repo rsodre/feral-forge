@@ -32,27 +32,19 @@ world_block = 1
 [namespace]
 default = "feral"
 
-#--------------------------
-# namespaces
-#
 [owners]
 "feral" = [
   "feral-game_token",
 ]
 
-#--------------------------
-# writers
-#
 [writers]
 "feral" = [
   "feral-game_token",
 ]
 
-#--------------------------
-# init_calldata
-#
 [init_call_args]
 "feral-game_token" = [
+  "0x0", # minigame_token_address
 ]
 
 

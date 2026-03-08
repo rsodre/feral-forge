@@ -23,7 +23,7 @@ chain_id = "SN_MAIN"
 rpc_url = "https://api.cartridge.gg/x/starknet/mainnet/rpc/v0_9" # or env: STARKNET_RPC_URL
 # account_address = ""  # env: DOJO_ACCOUNT_ADDRESS
 # private_key = ""      # env: DOJO_PRIVATE_KEY
-world_address = "0x02098ea5abf3d4e6cd95df962c58ab746d9a7fd67a47cada710ea2e491354cd2"
+world_address = "0x0151badfd4875c60de9a2c933c0831c8ba7acf7e29d50b4a317b6cf62fe6eccc"
 lords_address = "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49"
 world_block = 88597     # LORDS deployment block
 # world_block = 1376382
@@ -34,27 +34,19 @@ world_block = 88597     # LORDS deployment block
 [namespace]
 default = "feral"
 
-#--------------------------
-# namespaces
-#
 [owners]
 "feral" = [
   "feral-game_token",
 ]
 
-#--------------------------
-# writers
-#
 [writers]
 "feral" = [
   "feral-game_token",
 ]
 
-#--------------------------
-# init_calldata
-#
 [init_call_args]
 "feral-game_token" = [
+  "0x0", # minigame_token_address
 ]
 
 
